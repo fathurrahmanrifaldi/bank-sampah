@@ -9,8 +9,16 @@ use App\Http\Controllers\Nasabah;
 // Halaman utama → redirect ke login
 Route::get('/', fn() => redirect()->route('login'));
 
-// Auth routes (login / logout) — registrasi dinonaktifkan
-Auth::routes(['register' => false]);
+// Auth routes (login / logout / register)
+Auth::routes();
+
+// Google OAuth Routes
+Route::get('/auth/google', [App\Http\Controllers\Auth\GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('/auth/google/callback', [App\Http\Controllers\Auth\GoogleController::class, 'handleGoogleCallback']);
+
+// Route Lengkapi Profil Google
+Route::get('/nasabah-portal/complete-profile', [App\Http\Controllers\Nasabah\ProfileController::class, 'completeProfileForm'])->name('nasabah.complete-profile');
+Route::post('/nasabah-portal/complete-profile', [App\Http\Controllers\Nasabah\ProfileController::class, 'completeProfileStore'])->name('nasabah.complete-profile.store');
 
 // Redirect setelah login berdasarkan role
 Route::get('/home', [AuthController::class, 'redirectAfterLogin'])
@@ -29,7 +37,10 @@ Route::prefix('admin')
     Route::get('/dashboard', [Admin\DashboardController::class, 'index'])
         ->name('dashboard');
 
-    // Nasabah CRUD
+    // Nasabah CRUD & Approval
+    Route::get('/nasabah/pending', [Admin\NasabahController::class, 'pendingList'])->name('nasabah.pending');
+    Route::post('/nasabah/{id}/approve', [Admin\NasabahController::class, 'approve'])->name('nasabah.approve');
+    Route::post('/nasabah/{id}/reject', [Admin\NasabahController::class, 'reject'])->name('nasabah.reject');
     Route::resource('nasabah', Admin\NasabahController::class)
         ->except(['show']);
 
@@ -66,4 +77,8 @@ Route::prefix('nasabah-portal')
 
     Route::get('/riwayat',   [Nasabah\RiwayatController::class, 'index'])
         ->name('riwayat');
+
+    // Profil Nasabah (Edit)
+    Route::get('/profil', [Nasabah\ProfileController::class, 'edit'])->name('profil.edit');
+    Route::put('/profil', [Nasabah\ProfileController::class, 'update'])->name('profil.update');
 });

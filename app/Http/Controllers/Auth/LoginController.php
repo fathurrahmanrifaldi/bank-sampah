@@ -37,4 +37,27 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
     }
+
+    /**
+     * The user has been authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function authenticated(\Illuminate\Http\Request $request, $user)
+    {
+        if ($user->status === 'pending') {
+            auth()->logout();
+            return redirect()->route('login')->with('error', 'Akun Anda sedang menunggu persetujuan Admin.');
+        }
+
+        if ($user->status === 'rejected') {
+            auth()->logout();
+            return redirect()->route('login')->with('error', 'Pendaftaran akun Anda ditolak.');
+        }
+
+        // if okay, proceed with default redirect
+        return redirect()->intended($this->redirectPath());
+    }
 }

@@ -56,6 +56,20 @@ body {
   <h4>Bank Sampah RW 042</h4>
   <p>Kelurahan Bahagia · Kecamatan Babelan · Bekasi</p>
 
+  @if(session('success'))
+    <div class="alert alert-success mb-3">
+      <i class="bi bi-check-circle me-1"></i>
+      {{ session('success') }}
+    </div>
+  @endif
+
+  @if(session('error'))
+    <div class="alert alert-danger mb-3">
+      <i class="bi bi-exclamation-circle me-1"></i>
+      {{ session('error') }}
+    </div>
+  @endif
+
   @if($errors->any())
     <div class="alert alert-danger mb-3">
       <i class="bi bi-exclamation-circle me-1"></i>
@@ -73,7 +87,7 @@ body {
     <div class="mb-3">
       <label class="form-label">Password</label>
       <input type="password" name="password" class="form-control"
-             placeholder="Masukan Password" required>
+             placeholder="Masukan Password" required> 
     </div>
     <div class="form-check mb-4">
       <input class="form-check-input" type="checkbox" name="remember" id="remember">
@@ -81,11 +95,43 @@ body {
         Ingat saya
       </label>
     </div>
-    <button type="submit" class="btn btn-login">
+    <button type="submit" class="btn btn-login mb-3">
       <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
     </button>
+    
+    <div class="position-relative mb-3 text-center">
+        <hr class="text-secondary">
+        <span class="position-absolute top-50 translate-middle px-2 bg-white" style="font-size: 12px; color: #64748b; left: 50%;">ATAU</span>
+    </div>
+
+    <a href="{{ route('google.login') }}" class="btn btn-outline-dark w-100 mb-3" style="border-radius: 10px; font-weight: 600; font-size: 14px; padding: 10px;">
+        <i class="bi bi-google me-2" style="color: #ea4335;"></i> Masuk dengan Google
+    </a>
+
+    <p class="text-center mt-3" style="font-size: 13px; color: #64748b;">
+        Belum punya akun? <a href="{{ route('register') }}" style="color: #16a34a; font-weight: 600; text-decoration: none;">Registrasi di sini</a>
+    </p>
   </form>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const togglePassword = document.getElementById('togglePassword');
+const passwordInput = document.getElementById('password');
+const icon = togglePassword.querySelector('i');
+
+togglePassword.addEventListener('click', function () {
+
+  // cek tipe input
+  const type = passwordInput.getAttribute('type') === 'password'
+      ? 'text'
+      : 'password';
+
+  passwordInput.setAttribute('type', type);
+
+  // ganti icon
+  icon.classList.toggle('bi-eye');
+  icon.classList.toggle('bi-eye-slash');
+});
+</script>
 </body>
 </html>

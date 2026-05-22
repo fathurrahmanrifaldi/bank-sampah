@@ -154,8 +154,18 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
 
     <div class="nav-section">Data Master</div>
     <a href="{{ route('admin.nasabah.index') }}"
-       class="nav-link {{ request()->routeIs('admin.nasabah.*') ? 'active' : '' }}">
+       class="nav-link {{ request()->routeIs('admin.nasabah.index') || request()->routeIs('admin.nasabah.edit') || request()->routeIs('admin.nasabah.create') ? 'active' : '' }}">
       <i class="bi bi-people"></i> Nasabah
+    </a>
+    <a href="{{ route('admin.nasabah.pending') }}"
+       class="nav-link {{ request()->routeIs('admin.nasabah.pending') ? 'active' : '' }}">
+      <i class="bi bi-person-check"></i> Persetujuan Nasabah
+      @php
+          $pendingCount = \App\Models\User::where('status', 'pending')->count();
+      @endphp
+      @if($pendingCount > 0)
+          <span class="badge bg-danger rounded-pill ms-auto" style="font-size:10px">{{ $pendingCount }}</span>
+      @endif
     </a>
     <a href="{{ route('admin.kategori.index') }}"
        class="nav-link {{ request()->routeIs('admin.kategori.*') ? 'active' : '' }}">

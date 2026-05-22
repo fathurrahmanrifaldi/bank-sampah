@@ -56,6 +56,24 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
 </nav>
 
 <div class="page-body">
+  <ul class="nav nav-tabs mb-4 border-0">
+    <li class="nav-item">
+      <a class="nav-link {{ request()->routeIs('nasabah.dashboard') ? 'active' : '' }}" href="{{ route('nasabah.dashboard') }}">
+        <i class="bi bi-grid-1x2 me-1"></i> Dashboard
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {{ request()->routeIs('nasabah.riwayat') ? 'active' : '' }}" href="{{ route('nasabah.riwayat') }}">
+        <i class="bi bi-clock-history me-1"></i> Riwayat
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {{ request()->routeIs('nasabah.profil.*') ? 'active' : '' }}" href="{{ route('nasabah.profil.edit') }}">
+        <i class="bi bi-person-circle me-1"></i> Profil Saya
+      </a>
+    </li>
+  </ul>
+
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show mb-3">
       {{ session('success') }}
