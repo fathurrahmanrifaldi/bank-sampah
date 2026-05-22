@@ -15,7 +15,7 @@ class KategoriController extends Controller
 
     public function create()
     {
-        return view('admin.kategori.create');
+        return view('admin.kategori.form');
     }
 
     public function store(Request $request)
@@ -35,7 +35,7 @@ class KategoriController extends Controller
 
     public function edit(KategoriSampah $kategori)
     {
-        return view('admin.kategori.edit', compact('kategori'));
+        return view('admin.kategori.form', compact('kategori'));
     }
 
     public function update(Request $request, KategoriSampah $kategori)
