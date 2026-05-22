@@ -75,7 +75,7 @@
           </td>
           <td>
             <div style="font-weight:600;font-size:13px">{{ $h->nasabah->user->name }}</div>
-            <div style="font-size:11px;color:#94a3b8">{{ $h->nasabah->no_rekening }}</div>
+            <div style="font-size:11px;color:#94a3b8">{{ $h->nasabah->nik }}</div>
           </td>
           <td style="font-size:13px">{{ number_format($h->total_berat, 2) }} kg</td>
           <td>

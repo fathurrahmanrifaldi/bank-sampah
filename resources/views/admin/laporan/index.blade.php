@@ -48,7 +48,7 @@
       <h6>Rekap Setoran Nasabah – Bulan {{ $bulan }}/{{ $tahun }}</h6>
       <table class="table table-hover">
         <thead><tr>
-          <th>No</th><th>Nama</th><th>No. Rekening</th>
+          <th>No</th><th>Nama</th><th>NIK</th>
           <th>Jml Setor</th><th>Total Nilai</th>
         </tr></thead>
         <tbody>
@@ -56,7 +56,7 @@
           <tr>
             <td>{{ $i+1 }}</td>
             <td>{{ $r->name }}</td>
-            <td>{{ $r->no_rekening }}</td>
+            <td>{{ $r->nik }}</td>
             <td>{{ $r->jumlah_setor }} kali</td>
             <td>Rp {{ number_format($r->total_nilai, 0, ',', '.') }}</td>
           </tr>

@@ -18,10 +18,10 @@ class LaporanController extends Controller {
             ->join('users', 'nasabah.user_id', '=', 'users.id')
             ->whereMonth('transaksi.tanggal', $bulan)
             ->whereYear('transaksi.tanggal', $tahun)
-            ->groupBy('nasabah.id', 'users.name', 'nasabah.no_rekening')
+            ->groupBy('nasabah.id', 'users.name', 'nasabah.nik')
             ->select(
                 'users.name',
-                'nasabah.no_rekening',
+                'nasabah.nik',
                 DB::raw('COUNT(transaksi.id) as jumlah_setor'),
                 DB::raw('SUM(transaksi.total_nilai) as total_nilai')
             )->get();

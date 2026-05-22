@@ -19,7 +19,7 @@
           <div class="col-md-6">
             <div style="font-size:12px;color:#64748b;margin-bottom:4px">Nasabah</div>
             <div style="font-weight:700;font-size:15px">{{ $transaksi->nasabah->user->name }}</div>
-            <div style="font-size:12px;color:#94a3b8">{{ $transaksi->nasabah->no_rekening }}</div>
+            <div style="font-size:12px;color:#94a3b8">{{ $transaksi->nasabah->nik }}</div>
           </div>
           <div class="col-md-3">
             <div style="font-size:12px;color:#64748b;margin-bottom:4px">Tanggal Setoran</div>

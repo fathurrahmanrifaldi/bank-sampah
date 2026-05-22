@@ -9,7 +9,7 @@ return new class extends Migration {
         Schema::create('nasabah', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('no_rekening')->unique();
+            $table->string('nik')->unique();
             $table->string('alamat');
             $table->string('no_hp', 15);
             $table->decimal('saldo', 10, 2)->default(0);

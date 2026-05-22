@@ -32,6 +32,11 @@
                    value="{{ old('name') }}" placeholder="Nama lengkap nasabah" required>
           </div>
           <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px">NIK</label>
+            <input type="text" name="nik" class="form-control"
+                   value="{{ old('nik') }}" placeholder="Nomor Induk Kependudukan (16 digit)" required>
+          </div>
+          <div class="mb-3">
             <label class="form-label fw-semibold" style="font-size:13px">Email</label>
             <input type="email" name="email" class="form-control"
                    value="{{ old('email') }}" placeholder="email@contoh.com" required>

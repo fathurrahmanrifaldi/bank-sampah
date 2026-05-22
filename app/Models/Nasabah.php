@@ -7,7 +7,7 @@ class Nasabah extends Model {
 
     protected $table    = 'nasabah';
     protected $fillable = [
-        'user_id', 'no_rekening', 'alamat', 'no_hp', 'saldo'
+        'user_id', 'nik', 'alamat', 'no_hp', 'saldo'
     ];
 
     public function user() {
@@ -20,9 +20,4 @@ class Nasabah extends Model {
         return $this->hasMany(Penilaian::class);
     }
 
-    /** Generate nomor rekening otomatis: BS-2026-001 */
-    public static function generateNoRekening(): string {
-        $count = self::count() + 1;
-        return 'BS-' . date('Y') . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
-    }
 }

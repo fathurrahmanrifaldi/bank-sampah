@@ -6,7 +6,7 @@
 <div class="saldo-card mb-4">
   <div style="font-size:13px;opacity:.8;margin-bottom:6px">
     <i class="bi bi-person-circle me-1"></i>
-    {{ $nasabah->user->name }} · {{ $nasabah->no_rekening }}
+    {{ $nasabah->user->name }} · {{ $nasabah->nik }}
   </div>
   <div style="font-size:13px;opacity:.7;margin-bottom:4px">Saldo Tabungan Sampah</div>
   <div style="font-size:36px;font-weight:800;letter-spacing:-1px">

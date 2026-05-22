@@ -26,7 +26,7 @@
 
         <div class="alert mb-4" style="background:#f0fdf4;border:1px solid #bbf7d0">
           <div style="font-size:12px;color:#15803d">
-            <strong>No. Rekening:</strong> {{ $nasabah->no_rekening }} &nbsp;|&nbsp;
+            <strong>NIK:</strong> {{ $nasabah->nik }} &nbsp;|&nbsp;
             <strong>Saldo:</strong> Rp {{ number_format($nasabah->saldo, 0, ',', '.') }}
           </div>
         </div>

@@ -34,7 +34,7 @@
           <td style="color:#94a3b8;font-size:12px">{{ $t->id }}</td>
           <td>
             <div style="font-weight:600;font-size:13px">{{ $t->nasabah->user->name }}</div>
-            <div style="font-size:11px;color:#94a3b8">{{ $t->nasabah->no_rekening }}</div>
+            <div style="font-size:11px;color:#94a3b8">{{ $t->nasabah->nik }}</div>
           </td>
           <td style="font-size:13px">{{ $t->tanggal->format('d M Y') }}</td>
           <td>

@@ -20,7 +20,7 @@
     <h6>Daftar Nasabah</h6>
     <form class="d-flex gap-2">
       <input type="text" name="q" value="{{ request('q') }}"
-             class="form-control form-control-sm" placeholder="Cari nama / rekening..."
+             class="form-control form-control-sm" placeholder="Cari nama / NIK..."
              style="border-radius:8px;width:220px">
       <button class="btn btn-sm" style="background:#f1f5f9">
         <i class="bi bi-search"></i>
@@ -33,7 +33,7 @@
         <tr>
           <th>#</th>
           <th>Nama</th>
-          <th>No. Rekening</th>
+          <th>NIK</th>
           <th>No. HP</th>
           <th>Saldo</th>
           <th>Bergabung</th>
@@ -50,7 +50,7 @@
           </td>
           <td>
             <span class="badge" style="background:#f1f5f9;color:#374151;font-size:12px">
-              {{ $n->no_rekening }}
+              {{ $n->nik }}
             </span>
           </td>
           <td style="font-size:13px">{{ $n->no_hp }}</td>

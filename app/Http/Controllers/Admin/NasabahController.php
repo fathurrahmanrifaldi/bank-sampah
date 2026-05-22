@@ -24,6 +24,7 @@ class NasabahController extends Controller {
         $request->validate([
             'name'    => 'required|string|max:100',
             'email'   => 'required|email|unique:users,email',
+            'nik'     => 'required|string|unique:nasabah,nik',
             'alamat'  => 'required|string',
             'no_hp'   => 'required|string|max:15',
             'password'=> 'required|min:6',
@@ -41,7 +42,7 @@ class NasabahController extends Controller {
             // 2. Buat data nasabah yang terhubung ke user
             Nasabah::create([
                 'user_id'     => $user->id,
-                'no_rekening' => Nasabah::generateNoRekening(),
+                'nik'         => $request->nik,
                 'alamat'      => $request->alamat,
                 'no_hp'       => $request->no_hp,
                 'saldo'       => 0,
