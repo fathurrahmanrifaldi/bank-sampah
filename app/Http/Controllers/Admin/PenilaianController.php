@@ -6,85 +6,205 @@ use App\Models\{Penilaian, Nasabah};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class PenilaianController extends Controller {
+class PenilaianController extends Controller
+{
+    // ─── Bobot SAW ────────────────────────────────────────────────────────────
+    const BOBOT = [
+        'konsistensi'        => 0.30, // C1: Konsistensi setoran (benefit)
+        'total_berat'        => 0.25, // C2: Total berat sampah (benefit)
+        'keragaman_kategori' => 0.20, // C3: Keragaman kategori (benefit)
+        'tren_pertumbuhan'   => 0.25, // C4: Tren pertumbuhan (benefit)
+    ];
 
-    public function index(Request $request) {
-        $bulan = $request->get('bulan', now()->month);
-        $tahun = $request->get('tahun', now()->year);
+    // ─── Index ────────────────────────────────────────────────────────────────
+
+    public function index(Request $request)
+    {
+        // Default: semester sekarang
+        $bulanSekarang = now()->month;
+        $semesterDefault = $bulanSekarang <= 6 ? 1 : 2;
+
+        $semester = (int) $request->get('semester', $semesterDefault);
+        $tahun    = (int) $request->get('tahun', now()->year);
+
+        // Pastikan semester valid
+        $semester = in_array($semester, [1, 2]) ? $semester : 1;
 
         $hasil = Penilaian::with('nasabah.user')
-            ->where('bulan', $bulan)
+            ->where('semester', $semester)
             ->where('tahun', $tahun)
             ->orderByDesc('skor')
             ->get();
 
-        return view('admin.penilaian.index',
-            compact('hasil', 'bulan', 'tahun'));
+        return view('admin.penilaian.index', compact('hasil', 'semester', 'tahun'));
     }
 
+    // ─── Hitung SAW ───────────────────────────────────────────────────────────
+
     /**
-     * Hitung penilaian nasabah terbaik untuk bulan tertentu.
+     * Hitung penilaian nasabah terbaik untuk satu semester (6 bulan).
      *
-     * Formula skor (skala 0–100):
-     *   skor = (normBerat × 50) + (normFrekuensi × 30) + (normNilai × 20)
+     * Metode: Simple Additive Weighting (SAW) – semua kriteria benefit.
      *
-     * Normalisasi min-max: nilai_i / max_nilai × 100
+     * Kriteria & bobot:
+     *   C1 – Konsistensi setoran  : 30%  → rata-rata transaksi/bulan selama 6 bln
+     *   C2 – Total berat sampah   : 25%  → total kg dalam semester
+     *   C3 – Keragaman kategori   : 20%  → COUNT(DISTINCT kategori_id)
+     *   C4 – Tren pertumbuhan     : 25%  → avg_berat(3 bln akhir) - avg_berat(3 bln awal)
+     *
+     * Normalisasi (benefit): r_ij = x_ij / max(x_j)
+     * C4 bisa negatif → digeser: x_shifted = x + |min(x)|, lalu normalisasi.
+     *
+     * Predikat: rank 1 = Emas, rank 2 = Perak, rank 3 = Perunggu, lainnya null.
      */
-    public function hitung(Request $request) {
+    public function hitung(Request $request)
+    {
         $request->validate([
-            'bulan' => 'required|integer|between:1,12',
-            'tahun' => 'required|integer|min:2020',
+            'semester' => 'required|integer|in:1,2',
+            'tahun'    => 'required|integer|min:2020',
         ]);
 
-        $bulan = $request->bulan;
-        $tahun = $request->tahun;
+        $semester = (int) $request->semester;
+        $tahun    = (int) $request->tahun;
 
-        // Ambil data mentah per nasabah untuk bulan ini
-        $data = DB::table('transaksi')
+        // Tentukan rentang bulan semester
+        [$bulanAwal, $bulanAkhir]      = $semester === 1 ? [1, 6]  : [7, 12];
+        [$bulanAwal3, $bulanAkhir3Awal] = $semester === 1 ? [1, 3]  : [7, 9];
+        [$bulanAwal3Akhir, $bulanAkhir3] = $semester === 1 ? [4, 6] : [10, 12];
+
+        // ── C1 & C2: Konsistensi + Total Berat ─────────────────────────────
+        // Konsistensi = jumlah bulan unik yang ada transaksi (dari total 6 bulan)
+        // (pendekatan: COUNT(DISTINCT month) / 6 * 6 = jumlah bulan aktif)
+        $dataUtama = DB::table('transaksi')
             ->join('detail_transaksi', 'transaksi.id', '=', 'detail_transaksi.transaksi_id')
-            ->whereMonth('transaksi.tanggal', $bulan)
             ->whereYear('transaksi.tanggal', $tahun)
+            ->whereBetween(DB::raw('MONTH(transaksi.tanggal)'), [$bulanAwal, $bulanAkhir])
             ->groupBy('transaksi.nasabah_id')
             ->select(
                 'transaksi.nasabah_id',
+                // C1: rata-rata transaksi unik per bulan (jumlah transaksi / 6 bulan)
+                DB::raw('COUNT(DISTINCT transaksi.id) / 6.0 as konsistensi'),
+                // C2: total berat
                 DB::raw('SUM(detail_transaksi.berat_kg) as total_berat'),
-                DB::raw('COUNT(DISTINCT transaksi.id) as jumlah_setor'),
-                DB::raw('SUM(transaksi.total_nilai) as total_nilai')
-            )->get();
+                // C3: keragaman kategori unik
+                DB::raw('COUNT(DISTINCT detail_transaksi.kategori_id) as keragaman_kategori')
+            )
+            ->get()
+            ->keyBy('nasabah_id');
 
-        if ($data->isEmpty()) {
-            return back()->with('error', 'Tidak ada transaksi pada periode ini.');
+        if ($dataUtama->isEmpty()) {
+            return back()->with('error', 'Tidak ada transaksi pada semester ini.');
         }
 
-        // Hitung nilai max untuk normalisasi
-        $maxBerat  = $data->max('total_berat')  ?: 1;
-        $maxSetor  = $data->max('jumlah_setor') ?: 1;
-        $maxNilai  = $data->max('total_nilai')  ?: 1;
+        // ── C4: Tren Pertumbuhan ─────────────────────────────────────────────
+        // Rata-rata berat per bulan di 3 bulan AWAL semester
+        $beratAwal = DB::table('transaksi')
+            ->join('detail_transaksi', 'transaksi.id', '=', 'detail_transaksi.transaksi_id')
+            ->whereYear('transaksi.tanggal', $tahun)
+            ->whereBetween(DB::raw('MONTH(transaksi.tanggal)'), [$bulanAwal3, $bulanAkhir3Awal])
+            ->groupBy('transaksi.nasabah_id', DB::raw('MONTH(transaksi.tanggal)'))
+            ->select(
+                'transaksi.nasabah_id',
+                DB::raw('SUM(detail_transaksi.berat_kg) as berat_bulan')
+            )
+            ->get()
+            ->groupBy('nasabah_id')
+            ->map(fn($rows) => $rows->avg('berat_bulan'));
 
-        // Simpan/update penilaian tiap nasabah
-        foreach ($data as $d) {
-            $normBerat  = ($d->total_berat  / $maxBerat)  * 100;
-            $normSetor  = ($d->jumlah_setor / $maxSetor)  * 100;
-            $normNilai  = ($d->total_nilai  / $maxNilai)  * 100;
+        // Rata-rata berat per bulan di 3 bulan AKHIR semester
+        $beratAkhir = DB::table('transaksi')
+            ->join('detail_transaksi', 'transaksi.id', '=', 'detail_transaksi.transaksi_id')
+            ->whereYear('transaksi.tanggal', $tahun)
+            ->whereBetween(DB::raw('MONTH(transaksi.tanggal)'), [$bulanAwal3Akhir, $bulanAkhir3])
+            ->groupBy('transaksi.nasabah_id', DB::raw('MONTH(transaksi.tanggal)'))
+            ->select(
+                'transaksi.nasabah_id',
+                DB::raw('SUM(detail_transaksi.berat_kg) as berat_bulan')
+            )
+            ->get()
+            ->groupBy('nasabah_id')
+            ->map(fn($rows) => $rows->avg('berat_bulan'));
 
-            // Bobot: berat 50%, frekuensi 30%, nilai 20%
-            $skor = ($normBerat * 0.5) + ($normSetor * 0.3) + ($normNilai * 0.2);
+        // ── Susun data mentah semua nasabah ──────────────────────────────────
+        $mentah = collect();
+        foreach ($dataUtama as $nasabahId => $d) {
+            $avgAwal  = $beratAwal->get($nasabahId, 0);
+            $avgAkhir = $beratAkhir->get($nasabahId, 0);
+            $tren     = $avgAkhir - $avgAwal; // bisa negatif
+
+            $mentah->push([
+                'nasabah_id'         => $nasabahId,
+                'konsistensi'        => (float) $d->konsistensi,
+                'total_berat'        => (float) $d->total_berat,
+                'keragaman_kategori' => (float) $d->keragaman_kategori,
+                'tren_pertumbuhan'   => round($tren, 4),
+            ]);
+        }
+
+        // ── Normalisasi SAW (benefit) ─────────────────────────────────────────
+        $maxC1 = max($mentah->max('konsistensi'), 1e-9);
+        $maxC2 = max($mentah->max('total_berat'), 1e-9);
+        $maxC3 = max($mentah->max('keragaman_kategori'), 1e-9);
+
+        // C4: tren bisa negatif → shift ke ≥ 0
+        $minC4     = $mentah->min('tren_pertumbuhan');
+        $shiftC4   = $minC4 < 0 ? abs($minC4) : 0;
+        $mentahC4s = $mentah->map(fn($r) => $r['tren_pertumbuhan'] + $shiftC4);
+        $maxC4     = max($mentahC4s->max(), 1e-9);
+
+        // ── Hitung skor SAW & simpan ──────────────────────────────────────────
+        $skorList = [];
+        foreach ($mentah as $idx => $d) {
+            $normC1 = $d['konsistensi']        / $maxC1;
+            $normC2 = $d['total_berat']        / $maxC2;
+            $normC3 = $d['keragaman_kategori'] / $maxC3;
+            $normC4 = ($d['tren_pertumbuhan'] + $shiftC4) / $maxC4;
+
+            $skor = ($normC1 * self::BOBOT['konsistensi'])
+                  + ($normC2 * self::BOBOT['total_berat'])
+                  + ($normC3 * self::BOBOT['keragaman_kategori'])
+                  + ($normC4 * self::BOBOT['tren_pertumbuhan']);
+
+            $skorList[$d['nasabah_id']] = [
+                'data'  => $d,
+                'norms' => compact('normC1', 'normC2', 'normC3', 'normC4'),
+                'skor'  => round($skor, 6),
+            ];
+        }
+
+        // Urutkan skor tertinggi dulu untuk menentukan predikat rank
+        arsort($skorList);
+        $rank = 1;
+        $predikatMap = [1 => 'Emas', 2 => 'Perak', 3 => 'Perunggu'];
+
+        foreach ($skorList as $nasabahId => $item) {
+            $d        = $item['data'];
+            $norms    = $item['norms'];
+            $predikat = $predikatMap[$rank] ?? null;
 
             Penilaian::updateOrCreate(
-                ['nasabah_id' => $d->nasabah_id, 'bulan' => $bulan, 'tahun' => $tahun],
+                ['nasabah_id' => $nasabahId, 'semester' => $semester, 'tahun' => $tahun],
                 [
-                    'total_berat'  => $d->total_berat,
-                    'jumlah_setor' => $d->jumlah_setor,
-                    'total_nilai'  => $d->total_nilai,
-                    'skor'         => round($skor, 2),
-                    'predikat'     => $skor >= 80 ? 'Emas'
-                                     : ($skor >= 60 ? 'Perak' : 'Perunggu'),
+                    'konsistensi'        => $d['konsistensi'],
+                    'total_berat'        => $d['total_berat'],
+                    'keragaman_kategori' => $d['keragaman_kategori'],
+                    'tren_pertumbuhan'   => $d['tren_pertumbuhan'],
+                    'norm_konsistensi'   => round($norms['normC1'], 6),
+                    'norm_total_berat'   => round($norms['normC2'], 6),
+                    'norm_keragaman'     => round($norms['normC3'], 6),
+                    'norm_tren'          => round($norms['normC4'], 6),
+                    'skor'               => $item['skor'],
+                    'predikat'           => $predikat,
                 ]
             );
+
+            $rank++;
         }
 
         return redirect()->route('admin.penilaian.index', [
-            'bulan' => $bulan, 'tahun' => $tahun
-        ])->with('success', 'Penilaian berhasil dihitung!');
+            'semester' => $semester,
+            'tahun'    => $tahun,
+        ])->with('success', 'Penilaian SAW berhasil dihitung untuk ' .
+            ($semester === 1 ? 'Semester I' : 'Semester II') . " $tahun!");
     }
 }
