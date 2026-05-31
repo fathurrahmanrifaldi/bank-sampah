@@ -50,7 +50,7 @@
             <div class="col-md-6 mb-3">
               <label class="form-label fw-semibold" style="font-size:13px">Password Awal</label>
               <input type="password" name="password" class="form-control"
-                     placeholder="Min. 6 karakter" required>
+                     placeholder="Min. 8 karakter" required>
             </div>
           </div>
           <div class="mb-4">

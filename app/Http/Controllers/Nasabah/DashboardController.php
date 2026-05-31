@@ -12,15 +12,22 @@ class DashboardController extends Controller
         $nasabah = auth()->user()->nasabah;
         $now     = Carbon::now();
 
+        // Jika nasabah belum punya data, redirect dengan pesan
+        if (!$nasabah) {
+            return redirect()->route('nasabah.complete-profile')
+                ->with('warning', 'Harap lengkapi profil Anda terlebih dahulu.');
+        }
+
         $totalTransaksi = $nasabah->transaksi()->count();
 
         $totalBerat = DetailTransaksi::whereHas('transaksi', function ($q) use ($nasabah) {
             $q->where('nasabah_id', $nasabah->id);
         })->sum('berat_kg');
 
-        // Predikat bulan ini
+        // Predikat semester ini (kolom 'bulan' sudah diganti dengan 'semester' di migrasi SAW)
+        $semester = $now->month <= 6 ? 1 : 2;
         $predikat = Penilaian::where('nasabah_id', $nasabah->id)
-            ->where('bulan', $now->month)
+            ->where('semester', $semester)
             ->where('tahun', $now->year)
             ->value('predikat');
 

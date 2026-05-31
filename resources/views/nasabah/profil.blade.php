@@ -48,7 +48,7 @@
                 </div>
 
                 <hr class="my-4">
-                <h6 class="mb-3">Ubah Password <span class="text-muted fw-normal" style="font-size: 12px;">(Opsional)</span></h6>
+                <h6 class="mb-3">Ubah Password </h6>
                 
                 <div class="row mb-4">
                     <div class="col-md-6">

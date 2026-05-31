@@ -53,6 +53,10 @@ Route::prefix('admin')
     Route::resource('transaksi', Admin\TransaksiController::class)
         ->only(['index', 'create', 'store', 'show']);
 
+    // Penjualan ke Pengepul
+    Route::resource('penjualan-pengepul', Admin\PenjualanPengepulController::class)
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+
     // Laporan
     Route::get('/laporan', [Admin\LaporanController::class, 'index'])
         ->name('laporan.index');
