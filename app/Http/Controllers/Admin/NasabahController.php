@@ -8,11 +8,22 @@ use Illuminate\Support\Facades\{Hash, DB};
 
 class NasabahController extends Controller {
 
-    /** Tampilkan semua nasabah (hanya yang sudah diapprove) */
-    public function index() {
-        $nasabah = Nasabah::whereHas('user', function($q) {
+    public function index(Request $request) {
+        $query = Nasabah::whereHas('user', function($q) {
             $q->where('status', 'approved');
-        })->with('user')->latest()->paginate(10);
+        })->with('user');
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function($q) use ($search) {
+                $q->where('nik', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $nasabah = $query->latest()->paginate(10)->withQueryString();
         return view('admin.nasabah.index', compact('nasabah'));
     }
 
@@ -49,8 +60,8 @@ class NasabahController extends Controller {
             'name'    => 'required|string|max:100',
             'email'   => 'required|email|unique:users,email',
             'nik'     => 'required|string|size:16|unique:nasabah,nik',
-            'alamat'  => 'required|string',
-            'no_hp'   => 'required|string|max:15',
+            'alamat'  => 'nullable|string',
+            'no_hp'   => 'nullable|string|max:15',
             'password'=> 'required|min:8',
         ]);
 
@@ -88,8 +99,8 @@ class NasabahController extends Controller {
         $request->validate([
             'name'   => 'required|string|max:100',
             'nik'    => 'required|string|size:16|unique:nasabah,nik,'.$nasabah->id,
-            'alamat' => 'required|string',
-            'no_hp'  => 'required|string|max:15',
+            'alamat' => 'nullable|string',
+            'no_hp'  => 'nullable|string|max:15',
         ]);
 
         $nasabah->user->update(['name' => $request->name]);

@@ -82,29 +82,32 @@ body {
 
     <div class="mb-3">
       <label class="form-label">NIK (16 Digit)</label>
-      <input type="text" name="nik" class="form-control" value="{{ old('nik') }}" placeholder="Contoh: 3201..." maxlength="16" required autofocus>
+          <input type="text" name="nik" class="form-control" value="{{ old('nik') }}" placeholder="Contoh: 3201..." maxlength="16" required autofocus oninput="validateNik(this)">
+          <small class="text-danger d-none nik-warning">NIK harus tepat 16 digit angka.</small>
     </div>
 
     <div class="row">
         <div class="col-md-6 mb-3">
           <label class="form-label">Buat Password</label>
-          <input type="password" name="password" class="form-control" placeholder="Minimal 8 karakter" required>
+          <div class="input-group">
+            <input type="password" name="password" class="form-control" placeholder="Minimal 8 karakter" required>
+            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)" style="border-color: #e2e8f0;">
+                <i class="bi bi-eye"></i>
+            </button>
+          </div>
         </div>
         <div class="col-md-6 mb-3">
           <label class="form-label">Konfirmasi Password</label>
-          <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi Password" required>
+          <div class="input-group">
+            <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi Password" required>
+            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)" style="border-color: #e2e8f0;">
+                <i class="bi bi-eye"></i>
+            </button>
+          </div>
         </div>
     </div>
 
-    <div class="mb-3">
-      <label class="form-label">No. WhatsApp / HP</label>
-      <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}" placeholder="Contoh: 081234567890" required>
-    </div>
 
-    <div class="mb-4">
-      <label class="form-label">Alamat Lengkap</label>
-      <textarea name="alamat" class="form-control" rows="2" placeholder="Nama Jalan, RT/RW, dsb." required>{{ old('alamat') }}</textarea>
-    </div>
 
     <button type="submit" class="btn btn-login mb-3">
       <i class="bi bi-check2-circle me-2"></i>Simpan Profil
@@ -112,5 +115,34 @@ body {
   </form>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function togglePassword(btn) {
+    const input = btn.previousElementSibling;
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+}
+
+function validateNik(input) {
+    input.value = input.value.replace(/\D/g, ''); // hanya angka
+    const warning = input.nextElementSibling;
+    if (warning && warning.classList.contains('nik-warning')) {
+        if (input.value.length > 0 && input.value.length < 16) {
+            warning.classList.remove('d-none');
+            input.classList.add('is-invalid');
+        } else {
+            warning.classList.add('d-none');
+            input.classList.remove('is-invalid');
+        }
+    }
+}
+</script>
 </body>
 </html>

@@ -52,8 +52,8 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'nik' => ['required', 'string', 'size:16', 'unique:nasabah,nik'],
-            'no_hp' => ['required', 'string', 'max:15'],
-            'alamat' => ['required', 'string'],
+            'no_hp' => ['nullable', 'string', 'max:15'],
+            'alamat' => ['nullable', 'string'],
         ]);
     }
 
@@ -102,8 +102,8 @@ class RegisterController extends Controller
 
         $user->nasabah()->create([
             'nik' => $data['nik'],
-            'no_hp' => $data['no_hp'],
-            'alamat' => $data['alamat'],
+            'no_hp' => $data['no_hp'] ?? null,
+            'alamat' => $data['alamat'] ?? null,
         ]);
 
         return $user;

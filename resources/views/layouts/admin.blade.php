@@ -29,6 +29,10 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
   padding: 20px 20px 16px;
   border-bottom: 1px solid #1e293b;
 }
+.logo {
+  width: 40px; height: 40px; border-radius: 10px;
+  margin-bottom: 8px;
+}
 .sidebar-brand h6 {
   color: #fff; font-size: 13px; font-weight: 700;
   margin: 0; line-height: 1.4;
@@ -135,14 +139,34 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
 
 /* Alert */
 .alert { border: none; border-radius: 10px; font-size: 13.5px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.show { transform: translateX(0); box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+  .main-content { margin-left: 0; }
+  .topbar { padding: 0 16px; }
+  .page-body { padding: 16px; }
+  .sidebar-overlay {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 90;
+  }
+  .sidebar-overlay.show { display: block; }
+}
+.table-card { overflow-x: auto; }
 </style>
 </head>
 <body>
 
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <h6>🌿 Bank Sampah<br>RW 042</h6>
+    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo">
+    <h6>Bank Sampah<br>RW 042</h6>
     <small>Kelurahan Bahagia, Bekasi</small>
   </div>
   <nav class="sidebar-nav">
@@ -206,7 +230,12 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
 <!-- MAIN -->
 <div class="main-content">
   <div class="topbar">
-    <span class="topbar-title">@yield('page-title', 'Dashboard')</span>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm d-md-none me-2" id="sidebarToggle" style="background: none; border: none; font-size: 20px; padding: 0;">
+        <i class="bi bi-list"></i>
+      </button>
+      <span class="topbar-title">@yield('page-title', 'Dashboard')</span>
+    </div>
     <div class="topbar-user">
       <div class="avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
       <div>
@@ -235,6 +264,26 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    
+    if(toggleBtn) {
+      toggleBtn.addEventListener('click', function() {
+        sidebar.classList.toggle('show');
+        overlay.classList.toggle('show');
+      });
+    }
+    if(overlay) {
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+      });
+    }
+  });
+</script>
 @stack('scripts')
 </body>
 </html>

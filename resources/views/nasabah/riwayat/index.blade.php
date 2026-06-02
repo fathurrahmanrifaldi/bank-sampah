@@ -2,12 +2,6 @@
 @section('title','Riwayat Transaksi')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h5 class="fw-bold mb-0">Riwayat Transaksi Saya</h5>
-  <a href="{{ route('nasabah.dashboard') }}" style="font-size:13px;color:#16a34a">
-    ← Kembali ke dashboard
-  </a>
-</div>
 
 <div class="table-card">
   <div style="padding:14px 20px;border-bottom:1px solid #e2e8f0">

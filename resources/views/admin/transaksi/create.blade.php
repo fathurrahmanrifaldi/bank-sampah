@@ -3,6 +3,15 @@
 @section('page-title','Catat Transaksi Setoran Sampah')
 
 @section('content')
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<style>
+  .select2-container .select2-selection--single { font-size: 13px; height: 38px; display: flex; align-items: center; }
+  .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered { padding-top: 0; padding-bottom: 0; }
+  .select2-container--bootstrap-5 .select2-dropdown { font-size: 13px; }
+</style>
+
 <div class="row justify-content-center">
   <div class="col-lg-8">
     <div class="table-card">
@@ -147,7 +156,24 @@
 @endsection
 
 @push('scripts')
+<!-- jQuery & Select2 JS -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
+$(document).ready(function() {
+  $('#selectNasabah').select2({
+    theme: 'bootstrap-5',
+    width: '100%',
+    placeholder: '-- Pilih Nasabah --'
+  });
+  $('.sel-kategori').select2({
+    theme: 'bootstrap-5',
+    width: '100%',
+    placeholder: '-- Pilih Kategori --'
+  });
+});
+
 // ── Template baris baru ──────────────────────────────────
 const kategoriOptions = `@foreach($kategori as $k)
   <option value="{{ $k->id }}" data-harga="{{ $k->harga_per_kg }}">
@@ -199,7 +225,16 @@ function hitungNilai() {
 // ── Tambah baris ────────────────────────────────────────
 document.getElementById('btnTambahBaris').addEventListener('click', () => {
   const tbody = document.getElementById('tbodyDetail');
-  tbody.appendChild(buatBaris());
+  const newRow = buatBaris();
+  tbody.appendChild(newRow);
+  
+  // Init Select2 on the new row
+  $(newRow).find('.sel-kategori').select2({
+    theme: 'bootstrap-5',
+    width: '100%',
+    placeholder: '-- Pilih Kategori --'
+  });
+
   // Tampilkan semua tombol hapus jika baris > 1
   const hapusBtns = document.querySelectorAll('.btn-hapus');
   hapusBtns.forEach(b => b.style.display = 'block');
@@ -210,13 +245,21 @@ document.getElementById('btnTambahBaris').addEventListener('click', () => {
 function bindEvents() {
   document.querySelectorAll('.btn-hapus').forEach(btn => {
     btn.onclick = function() {
+      // Destroy Select2 before removing to prevent memory leaks
+      let sel = $(this).closest('tr').find('.sel-kategori');
+      if (sel.data('select2')) {
+        sel.select2('destroy');
+      }
       this.closest('tr').remove();
       const hapusBtns = document.querySelectorAll('.btn-hapus');
       if (hapusBtns.length === 1) hapusBtns[0].style.display = 'none';
       hitungNilai();
     };
   });
-  document.querySelectorAll('.sel-kategori, .inp-berat').forEach(el => {
+  
+  // Gunakan jQuery untuk event change pada Select2
+  $('.sel-kategori').off('change').on('change', hitungNilai);
+  document.querySelectorAll('.inp-berat').forEach(el => {
     el.oninput = hitungNilai;
     el.onchange = hitungNilai;
   });
@@ -224,8 +267,8 @@ function bindEvents() {
 bindEvents();
 
 // ── Info saldo nasabah ───────────────────────────────────
-document.getElementById('selectNasabah').addEventListener('change', function() {
-  const opt = this.selectedOptions[0];
+$('#selectNasabah').on('change', function() {
+  const opt = this.options[this.selectedIndex];
   const saldo = opt.dataset.saldo;
   if (saldo) {
     document.getElementById('textSaldo').textContent = 'Rp ' + saldo;

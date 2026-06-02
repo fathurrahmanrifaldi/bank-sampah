@@ -38,13 +38,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label text-muted" style="font-size: 13px;">No. HP</label>
-                    <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp', $nasabah->no_hp) }}" required>
+                    <label class="form-label text-muted" style="font-size: 13px;">No. HP <small>(Opsional)</small></label>
+                    <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp', $nasabah->no_hp) }}">
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label text-muted" style="font-size: 13px;">Alamat Lengkap</label>
-                    <textarea name="alamat" class="form-control" rows="3" required>{{ old('alamat', $nasabah->alamat) }}</textarea>
+                    <label class="form-label text-muted" style="font-size: 13px;">Alamat Lengkap <small>(Opsional)</small></label>
+                    <textarea name="alamat" class="form-control" rows="3">{{ old('alamat', $nasabah->alamat) }}</textarea>
                 </div>
 
                 <hr class="my-4">
@@ -53,11 +53,21 @@
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <label class="form-label text-muted" style="font-size: 13px;">Password Baru</label>
-                        <input type="password" name="password" class="form-control" placeholder="Biarkan kosong jika tidak ingin mengubah">
+                        <div class="input-group">
+                            <input type="password" name="password" class="form-control" placeholder="Biarkan kosong jika tidak ingin mengubah">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)" style="border-color: #e2e8f0;">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted" style="font-size: 13px;">Konfirmasi Password Baru</label>
-                        <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi password baru">
+                        <div class="input-group">
+                            <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi password baru">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)" style="border-color: #e2e8f0;">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -71,3 +81,21 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function togglePassword(btn) {
+    const input = btn.previousElementSibling;
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+}
+</script>
+@endpush

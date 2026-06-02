@@ -34,7 +34,8 @@
           <div class="mb-3">
             <label class="form-label fw-semibold" style="font-size:13px">NIK</label>
             <input type="text" name="nik" class="form-control"
-                   value="{{ old('nik') }}" placeholder="Nomor Induk Kependudukan (16 digit)" required>
+                   value="{{ old('nik') }}" placeholder="Nomor Induk Kependudukan (16 digit)" required oninput="validateNik(this)">
+            <small class="text-danger d-none nik-warning">NIK harus tepat 16 digit angka.</small>
           </div>
           <div class="mb-3">
             <label class="form-label fw-semibold" style="font-size:13px">Email</label>
@@ -43,20 +44,25 @@
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label fw-semibold" style="font-size:13px">No. HP</label>
+              <label class="form-label fw-semibold" style="font-size:13px">No. HP <small class="text-muted">(Opsional)</small></label>
               <input type="text" name="no_hp" class="form-control"
-                     value="{{ old('no_hp') }}" placeholder="08xxxxxxxxxx" required>
+                     value="{{ old('no_hp') }}" placeholder="08xxxxxxxxxx">
             </div>
             <div class="col-md-6 mb-3">
               <label class="form-label fw-semibold" style="font-size:13px">Password Awal</label>
-              <input type="password" name="password" class="form-control"
-                     placeholder="Min. 8 karakter" required>
+              <div class="input-group">
+                <input type="password" name="password" class="form-control"
+                       placeholder="Min. 8 karakter" required>
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)" style="border-color: #e2e8f0;">
+                    <i class="bi bi-eye"></i>
+                </button>
+              </div>
             </div>
           </div>
           <div class="mb-4">
-            <label class="form-label fw-semibold" style="font-size:13px">Alamat</label>
+            <label class="form-label fw-semibold" style="font-size:13px">Alamat <small class="text-muted">(Opsional)</small></label>
             <textarea name="alamat" class="form-control" rows="3"
-                      placeholder="Alamat lengkap nasabah" required>{{ old('alamat') }}</textarea>
+                      placeholder="Alamat lengkap nasabah">{{ old('alamat') }}</textarea>
           </div>
           <div class="d-flex gap-2">
             <button type="submit" class="btn px-4"
@@ -74,3 +80,35 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function togglePassword(btn) {
+    const input = btn.previousElementSibling;
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+}
+
+function validateNik(input) {
+    input.value = input.value.replace(/\D/g, '');
+    const warning = input.nextElementSibling;
+    if (warning && warning.classList.contains('nik-warning')) {
+        if (input.value.length > 0 && input.value.length < 16) {
+            warning.classList.remove('d-none');
+            input.classList.add('is-invalid');
+        } else {
+            warning.classList.add('d-none');
+            input.classList.remove('is-invalid');
+        }
+    }
+}
+</script>
+@endpush

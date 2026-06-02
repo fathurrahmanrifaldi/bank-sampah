@@ -35,6 +35,15 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
 }
 .table > :not(caption) > * > * { padding: 11px 16px; }
 .table tbody tr { border-color: #f1f5f9; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-body { padding: 16px; }
+  .nav-tabs { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; border-bottom: 1px solid #e2e8f0 !important; margin-bottom: 1rem; padding-bottom: 2px; }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tabs .nav-link { white-space: nowrap; }
+}
+.table-card { overflow-x: auto; }
 </style>
 </head>
 <body>

@@ -30,8 +30,8 @@ class ProfileController extends Controller
 
         $request->validate([
             'nik' => 'required|string|size:16|unique:nasabah,nik',
-            'no_hp' => 'required|string|max:15',
-            'alamat' => 'required|string',
+            'no_hp' => 'nullable|string|max:15',
+            'alamat' => 'nullable|string',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
@@ -91,8 +91,8 @@ class ProfileController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'no_hp' => 'required|string|max:15',
-            'alamat' => 'required|string',
+            'no_hp' => 'nullable|string|max:15',
+            'alamat' => 'nullable|string',
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
