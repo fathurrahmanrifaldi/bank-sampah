@@ -77,6 +77,18 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
       </a>
     </li>
     <li class="nav-item">
+      <a class="nav-link {{ request()->routeIs('nasabah.penarikan.*') ? 'active' : '' }}" href="{{ route('nasabah.penarikan.index') }}">
+        <i class="bi bi-cash-stack me-1"></i> Penarikan Dana
+        @php
+          $myNasabah = auth()->user()->nasabah;
+          $cntMenunggu = $myNasabah ? $myNasabah->penarikanDana()->where('status','menunggu')->count() : 0;
+        @endphp
+        @if($cntMenunggu > 0)
+          <span class="badge rounded-pill ms-1" style="background:#fbbf24;color:#92400e;font-size:10px">{{ $cntMenunggu }}</span>
+        @endif
+      </a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link {{ request()->routeIs('nasabah.profil.*') ? 'active' : '' }}" href="{{ route('nasabah.profil.edit') }}">
         <i class="bi bi-person-circle me-1"></i> Profil Saya
       </a>
@@ -85,7 +97,19 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
 
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show mb-3">
-      {{ session('success') }}
+      <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  @endif
+  @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show mb-3">
+      <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  @endif
+  @if(session('warning'))
+    <div class="alert alert-warning alert-dismissible fade show mb-3">
+      <i class="bi bi-exclamation-triangle me-2"></i>{{ session('warning') }}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   @endif

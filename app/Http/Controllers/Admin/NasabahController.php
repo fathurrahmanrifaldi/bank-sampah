@@ -27,27 +27,7 @@ class NasabahController extends Controller {
         return view('admin.nasabah.index', compact('nasabah'));
     }
 
-    /** Tampilkan daftar nasabah pending */
-    public function pendingList() {
-        $nasabah = Nasabah::whereHas('user', function($q) {
-            $q->where('status', 'pending');
-        })->with('user')->latest()->paginate(10);
-        return view('admin.nasabah.pending', compact('nasabah'));
-    }
-
-    /** Setujui nasabah */
-    public function approve($id) {
-        $nasabah = Nasabah::findOrFail($id);
-        $nasabah->user->update(['status' => 'approved']);
-        return back()->with('success', 'Nasabah berhasil disetujui!');
-    }
-
-    /** Tolak nasabah (hapus data) */
-    public function reject($id) {
-        $nasabah = Nasabah::findOrFail($id);
-        $nasabah->user->delete(); // cascade ke nasabah otomatis
-        return back()->with('success', 'Pendaftaran nasabah ditolak dan data dihapus!');
-    }
+    // Fitur approval nasabah dihapus — digantikan oleh email verification.
 
     /** Form tambah nasabah baru */
     public function create() {

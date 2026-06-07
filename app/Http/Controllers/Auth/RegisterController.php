@@ -7,102 +7,89 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
     use RegistersUsers;
 
     /**
-     * Where to redirect users after registration.
-     *
-     * @var string
+     * Setelah registrasi, redirect ke halaman "cek email".
+     * User sudah login tapi perlu verifikasi email dulu.
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/email/verify';
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('guest');
     }
 
     /**
-     * Get a validator for an incoming registration request.
-     *
-     * @return \Illuminate\Contracts\Validation\Validator
+     * Validasi input registrasi.
      */
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'nik' => ['required', 'string', 'size:16', 'unique:nasabah,nik'],
-            'no_hp' => ['nullable', 'string', 'max:15'],
-            'alamat' => ['nullable', 'string'],
+            'nik'      => ['required', 'string', 'size:16', 'unique:nasabah,nik'],
+            'no_hp'    => ['nullable', 'string', 'max:15'],
+            'alamat'   => ['nullable', 'string'],
+        ], [
+            'name.required'     => 'Nama lengkap wajib diisi.',
+            'email.required'    => 'Alamat email wajib diisi.',
+            'email.unique'      => 'Email ini sudah terdaftar. Silakan gunakan email lain.',
+            'password.min'      => 'Password minimal 8 karakter.',
+            'password.confirmed'=> 'Konfirmasi password tidak cocok.',
+            'nik.required'      => 'NIK wajib diisi.',
+            'nik.size'          => 'NIK harus tepat 16 digit.',
+            'nik.unique'        => 'NIK ini sudah terdaftar.',
         ]);
     }
 
     /**
-     * Handle a registration request for the application.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     * Override register: buat user, login, redirect ke halaman verifikasi email.
      */
-    public function register(\Illuminate\Http\Request $request)
+    public function register(Request $request)
     {
         $this->validator($request->all())->validate();
 
-        \Illuminate\Support\Facades\DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $user = $this->create($request->all());
-
-            // Panggil registered callback jika ada, tapi jangan login
-            if ($response = $this->registered($request, $user)) {
-                return $response;
-            }
-
-            \Illuminate\Support\Facades\DB::commit();
-
-            return redirect()->route('login')->with('success', 'Registrasi berhasil. Akun Anda sedang menunggu persetujuan Admin.');
+            DB::commit();
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\DB::rollBack();
-            return back()->with('error', 'Terjadi kesalahan saat registrasi.')->withInput();
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan saat registrasi. Silakan coba lagi.')->withInput();
         }
+
+        // Login user, lalu kirim email verifikasi (MustVerifyEmail otomatis)
+        $this->guard()->login($user);
+        $user->sendEmailVerificationNotification();
+
+        // Redirect ke halaman "cek email kamu"
+        return redirect()->route('verification.notice');
     }
 
     /**
-     * Create a new user instance after a valid registration.
-     *
-     * @return User
+     * Buat user baru — status langsung approved (tidak perlu persetujuan Admin).
+     * Email verification yang menjadi gatekeeper.
      */
     protected function create(array $data)
     {
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
+            'name'     => $data['name'],
+            'email'    => $data['email'],
             'password' => Hash::make($data['password']),
-            'role' => 'nasabah',
-            'status' => 'pending',
+            'role'     => 'nasabah',
+            'status'   => 'approved', // langsung approved, gatekeeper adalah email verification
         ]);
 
         $user->nasabah()->create([
-            'nik' => $data['nik'],
-            'no_hp' => $data['no_hp'] ?? null,
+            'nik'    => $data['nik'],
+            'no_hp'  => $data['no_hp'] ?? null,
             'alamat' => $data['alamat'] ?? null,
         ]);
 

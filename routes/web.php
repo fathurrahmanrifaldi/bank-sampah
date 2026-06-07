@@ -9,8 +9,8 @@ use App\Http\Controllers\Nasabah;
 // Halaman utama → redirect ke login
 Route::get('/', fn() => redirect()->route('login'));
 
-// Auth routes (login / logout / register)
-Auth::routes();
+// Auth routes dengan email verification diaktifkan
+Auth::routes(['verify' => true]);
 
 // Google OAuth Routes
 Route::get('/auth/google', [App\Http\Controllers\Auth\GoogleController::class, 'redirectToGoogle'])->name('google.login');
@@ -30,22 +30,18 @@ Route::get('/home', [AuthController::class, 'redirectAfterLogin'])
 ═══════════════════════════════════════════ */
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', 'role:admin'])
+    ->middleware(['auth', 'verified', 'role:admin'])
     ->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [Admin\DashboardController::class, 'index'])
         ->name('dashboard');
 
-    // Nasabah CRUD & Approval
-    Route::get('/nasabah/pending', [Admin\NasabahController::class, 'pendingList'])->name('nasabah.pending');
-    Route::post('/nasabah/{id}/approve', [Admin\NasabahController::class, 'approve'])->name('nasabah.approve');
-    Route::post('/nasabah/{id}/reject', [Admin\NasabahController::class, 'reject'])->name('nasabah.reject');
+    // Nasabah CRUD (tanpa approval — sudah digantikan email verification)
     Route::resource('nasabah', Admin\NasabahController::class)
         ->except(['show']);
 
     // Kategori Sampah CRUD
-    // create & edit share satu view (form.blade.php)
     Route::resource('kategori', Admin\KategoriController::class)
         ->except(['show']);
 
@@ -66,14 +62,24 @@ Route::prefix('admin')
         ->name('penilaian.index');
     Route::post('/penilaian/hitung', [Admin\PenilaianController::class, 'hitung'])
         ->name('penilaian.hitung');
+
+    // Penarikan Dana
+    Route::get('/penarikan-dana', [Admin\PenarikanDanaController::class, 'index'])
+        ->name('penarikan-dana.index');
+    Route::post('/penarikan-dana/{id}/approve', [Admin\PenarikanDanaController::class, 'approve'])
+        ->name('penarikan-dana.approve');
+    Route::post('/penarikan-dana/{id}/reject',  [Admin\PenarikanDanaController::class, 'reject'])
+        ->name('penarikan-dana.reject');
 });
 
 /* ═══════════════════════════════════════════
    ROUTE NASABAH
+   Middleware 'verified' memastikan hanya nasabah yang sudah verifikasi email
+   yang bisa akses dashboard. Nasabah yang belum verifikasi diarahkan ke /email/verify
 ═══════════════════════════════════════════ */
 Route::prefix('nasabah-portal')
     ->name('nasabah.')
-    ->middleware(['auth', 'role:nasabah'])
+    ->middleware(['auth', 'verified', 'role:nasabah'])
     ->group(function () {
 
     Route::get('/dashboard', [Nasabah\DashboardController::class, 'index'])
@@ -81,6 +87,11 @@ Route::prefix('nasabah-portal')
 
     Route::get('/riwayat',   [Nasabah\RiwayatController::class, 'index'])
         ->name('riwayat');
+
+    // Penarikan Dana
+    Route::get('/penarikan',          [Nasabah\PenarikanDanaController::class, 'index'])->name('penarikan.index');
+    Route::get('/penarikan/create',   [Nasabah\PenarikanDanaController::class, 'create'])->name('penarikan.create');
+    Route::post('/penarikan',         [Nasabah\PenarikanDanaController::class, 'store'])->name('penarikan.store');
 
     // Profil Nasabah (Edit)
     Route::get('/profil', [Nasabah\ProfileController::class, 'edit'])->name('profil.edit');

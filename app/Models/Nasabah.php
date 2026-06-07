@@ -20,4 +20,8 @@ class Nasabah extends Model {
         return $this->hasMany(Penilaian::class);
     }
 
+    public function penarikanDana() {
+        return $this->hasMany(PenarikanDana::class);
+    }
+
 }

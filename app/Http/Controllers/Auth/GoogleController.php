@@ -27,39 +27,35 @@ class GoogleController extends Controller
         $user = User::where('email', $googleUser->getEmail())->first();
 
         if ($user) {
-            // Jika user sudah ada, update google_id jika masih kosong
+            // Update google_id jika masih kosong
             if (empty($user->google_id)) {
                 $user->update(['google_id' => $googleUser->getId()]);
             }
 
-            // Jika role nasabah, tapi nasabah profile tidak ada (misalnya proses terputus sebelumnya)
+            // Google sudah memverifikasi email — set email_verified_at jika belum ada
+            if (!$user->email_verified_at) {
+                $user->update(['email_verified_at' => now()]);
+            }
+
+            // Jika role nasabah tapi nasabah profile belum ada
             if ($user->role === 'nasabah' && !$user->nasabah) {
-                // Simpan data ke session untuk form lengkapi profil
                 session()->put('google_registration', [
-                    'name' => $googleUser->getName(),
-                    'email' => $googleUser->getEmail(),
+                    'name'      => $googleUser->getName(),
+                    'email'     => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
                 ]);
                 return redirect()->route('nasabah.complete-profile');
             }
 
-            // Jika status masih pending, tolak login
-            if ($user->status === 'pending') {
-                return redirect()->route('login')->with('error', 'Akun Anda sedang menunggu persetujuan Admin.');
-            }
-            if ($user->status === 'rejected') {
-                return redirect()->route('login')->with('error', 'Pendaftaran akun Anda ditolak.');
-            }
-
             // Login user
             Auth::login($user);
-            return redirect()->route('home'); // redirectAfterLogin akan menghandle redirect dashboard
+            return redirect()->route('home');
         }
 
-        // Jika user belum terdaftar sama sekali
+        // User belum terdaftar — arahkan ke form lengkapi profil
         session()->put('google_registration', [
-            'name' => $googleUser->getName(),
-            'email' => $googleUser->getEmail(),
+            'name'      => $googleUser->getName(),
+            'email'     => $googleUser->getEmail(),
             'google_id' => $googleUser->getId(),
         ]);
 

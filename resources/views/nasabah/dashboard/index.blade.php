@@ -15,6 +15,27 @@
   <div style="font-size:11px;opacity:.6;margin-top:8px">
     Terakhir diperbarui: {{ now()->format('d M Y, H:i') }}
   </div>
+  @php
+    $penarikanMenunggu = $nasabah->penarikanDana()->where('status','menunggu')->first();
+  @endphp
+  <div class="mt-3 d-flex gap-2 flex-wrap">
+    @if($penarikanMenunggu)
+      <a href="{{ route('nasabah.penarikan.index') }}"
+         style="background:rgba(255,255,255,.2);color:#fff;border-radius:8px;font-size:12px;padding:7px 14px;text-decoration:none;border:1px solid rgba(255,255,255,.3)">
+        <i class="bi bi-hourglass-split me-1"></i>
+        Menunggu: Rp {{ number_format($penarikanMenunggu->jumlah, 0, ',', '.') }}
+      </a>
+    @else
+      <a href="{{ route('nasabah.penarikan.create') }}"
+         style="background:rgba(255,255,255,.2);color:#fff;border-radius:8px;font-size:12px;padding:7px 14px;text-decoration:none;border:1px solid rgba(255,255,255,.3)">
+        <i class="bi bi-cash-stack me-1"></i>Ajukan Penarikan
+      </a>
+    @endif
+    <a href="{{ route('nasabah.penarikan.index') }}"
+       style="background:transparent;color:rgba(255,255,255,.75);border-radius:8px;font-size:12px;padding:7px 14px;text-decoration:none">
+      Riwayat Penarikan →
+    </a>
+  </div>
 </div>
 
 <!-- Stat cards -->

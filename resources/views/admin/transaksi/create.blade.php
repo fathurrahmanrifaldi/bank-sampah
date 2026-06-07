@@ -138,6 +138,73 @@
                       placeholder="Catatan tambahan...">{{ old('catatan') }}</textarea>
           </div>
 
+          <!-- ════════════════════════════════════
+               SECTION: Penarikan Dana
+               ════════════════════════════════════ -->
+          <div class="mb-4" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:20px">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <i class="bi bi-cash-stack" style="font-size:18px;color:#0f172a"></i>
+              <span style="font-size:14px;font-weight:700;color:#0f172a">Pencairan Dana</span>
+              <span class="badge" style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:500">
+                Tanyakan ke nasabah
+              </span>
+            </div>
+            <p style="font-size:12px;color:#64748b;margin-bottom:12px">
+              Apakah nasabah ingin mencairkan nilai setoran ini sekarang, dijadwalkan, atau disimpan dulu ke saldo?
+            </p>
+
+            <div class="d-flex flex-column gap-2" id="pilihanPenarikan">
+              {{-- Opsi: Tidak (simpan ke saldo) --}}
+              <label class="d-flex align-items-center gap-3 p-3" id="labelTidak"
+                     style="border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;background:#fff;transition:all .15s">
+                <input type="radio" name="penarikan_jenis" value="tidak" checked
+                       id="rdTidak" style="accent-color:#16a34a;width:16px;height:16px">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#0f172a">
+                    <i class="bi bi-piggy-bank me-1" style="color:#16a34a"></i> Simpan ke Saldo
+                  </div>
+                  <div style="font-size:11px;color:#64748b">Nilai langsung masuk ke saldo tabungan nasabah</div>
+                </div>
+              </label>
+
+              {{-- Opsi: Cair sekarang --}}
+              <label class="d-flex align-items-center gap-3 p-3" id="labelSegera"
+                     style="border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;background:#fff;transition:all .15s">
+                <input type="radio" name="penarikan_jenis" value="segera"
+                       id="rdSegera" style="accent-color:#16a34a;width:16px;height:16px">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#0f172a">
+                    <i class="bi bi-lightning-charge me-1" style="color:#2563eb"></i> Cair Sekarang
+                  </div>
+                  <div style="font-size:11px;color:#64748b">Dana langsung dicairkan hari ini, saldo tidak bertambah</div>
+                </div>
+              </label>
+
+              {{-- Opsi: Jadwalkan --}}
+              <label class="d-flex align-items-center gap-3 p-3" id="labelTerjadwal"
+                     style="border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;background:#fff;transition:all .15s">
+                <input type="radio" name="penarikan_jenis" value="terjadwal"
+                       id="rdTerjadwal" style="accent-color:#16a34a;width:16px;height:16px">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#0f172a">
+                    <i class="bi bi-calendar-event me-1" style="color:#7c3aed"></i> Jadwalkan
+                  </div>
+                  <div style="font-size:11px;color:#64748b">Nasabah minta cair di agenda bulan berikutnya</div>
+                </div>
+              </label>
+            </div>
+
+            {{-- Input tanggal (muncul jika pilih terjadwal) --}}
+            <div id="wrapTanggalPenarikan" class="mt-3" style="display:none">
+              <label class="form-label" style="font-size:12px;color:#475569;font-weight:600">
+                Tanggal Pencairan yang Diminta
+              </label>
+              <input type="date" name="tanggal_penarikan" id="tanggalPenarikan"
+                     class="form-control" style="font-size:13px;max-width:240px"
+                     min="{{ date('Y-m-d') }}">
+            </div>
+          </div>
+
           <div class="d-flex gap-2">
             <button type="submit" class="btn px-4"
                     style="background:#16a34a;color:#fff;border-radius:9px;font-size:14px">
@@ -149,6 +216,7 @@
             </a>
           </div>
         </form>
+
       </div>
     </div>
   </div>
@@ -277,5 +345,34 @@ $('#selectNasabah').on('change', function() {
     document.getElementById('infoSaldo').style.display = 'none';
   }
 });
+
+// ── Penarikan dana – highlight pilihan aktif ─────────────
+const rdLabels = {
+  rdTidak:     'labelTidak',
+  rdSegera:    'labelSegera',
+  rdTerjadwal: 'labelTerjadwal',
+};
+function updatePenarikanUI() {
+  Object.entries(rdLabels).forEach(([rdId, labelId]) => {
+    const rd    = document.getElementById(rdId);
+    const label = document.getElementById(labelId);
+    if (rd && label) {
+      if (rd.checked) {
+        label.style.borderColor = '#16a34a';
+        label.style.background  = '#f0fdf4';
+      } else {
+        label.style.borderColor = '#e2e8f0';
+        label.style.background  = '#fff';
+      }
+    }
+  });
+  const wrap = document.getElementById('wrapTanggalPenarikan');
+  const rdT  = document.getElementById('rdTerjadwal');
+  if (wrap && rdT) wrap.style.display = rdT.checked ? 'block' : 'none';
+}
+document.querySelectorAll('input[name="penarikan_jenis"]').forEach(r => {
+  r.addEventListener('change', updatePenarikanUI);
+});
+updatePenarikanUI();
 </script>
 @endpush

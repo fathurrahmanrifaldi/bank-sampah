@@ -156,6 +156,7 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
 }
 .table-card { overflow-x: auto; }
 </style>
+@stack('head-styles')
 </head>
 <body>
 
@@ -181,16 +182,6 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
        class="nav-link {{ request()->routeIs('admin.nasabah.index') || request()->routeIs('admin.nasabah.edit') || request()->routeIs('admin.nasabah.create') ? 'active' : '' }}">
       <i class="bi bi-people"></i> Nasabah
     </a>
-    <a href="{{ route('admin.nasabah.pending') }}"
-       class="nav-link {{ request()->routeIs('admin.nasabah.pending') ? 'active' : '' }}">
-      <i class="bi bi-person-check"></i> Persetujuan Nasabah
-      @php
-          $pendingCount = \App\Models\User::where('status', 'pending')->count();
-      @endphp
-      @if($pendingCount > 0)
-          <span class="badge bg-danger rounded-pill ms-auto" style="font-size:10px">{{ $pendingCount }}</span>
-      @endif
-    </a>
     <a href="{{ route('admin.kategori.index') }}"
        class="nav-link {{ request()->routeIs('admin.kategori.*') ? 'active' : '' }}">
       <i class="bi bi-tags"></i> Kategori Sampah
@@ -200,6 +191,14 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
     <a href="{{ route('admin.transaksi.index') }}"
        class="nav-link {{ request()->routeIs('admin.transaksi.*') ? 'active' : '' }}">
       <i class="bi bi-arrow-left-right"></i> Transaksi Setoran
+    </a>
+    <a href="{{ route('admin.penarikan-dana.index') }}"
+       class="nav-link {{ request()->routeIs('admin.penarikan-dana.*') ? 'active' : '' }}">
+      <i class="bi bi-cash-stack"></i> Penarikan Dana
+      @php $pendingPenarikan = \App\Models\PenarikanDana::where('status','menunggu')->count(); @endphp
+      @if($pendingPenarikan > 0)
+        <span class="badge bg-warning text-dark rounded-pill ms-auto" style="font-size:10px">{{ $pendingPenarikan }}</span>
+      @endif
     </a>
     <a href="{{ route('admin.penjualan-pengepul.index') }}"
        class="nav-link {{ request()->routeIs('admin.penjualan-pengepul.*') ? 'active' : '' }}">

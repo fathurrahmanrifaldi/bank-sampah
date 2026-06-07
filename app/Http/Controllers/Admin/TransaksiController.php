@@ -26,11 +26,16 @@ class TransaksiController extends Controller {
      */
     public function store(Request $request) {
         $request->validate([
-            'nasabah_id'    => 'required|exists:nasabah,id',
-            'tanggal'       => 'required|date',
-            'kategori_id'   => 'required|array|min:1',
-            'kategori_id.*' => 'exists:kategori_sampah,id',
-            'berat_kg.*'    => 'required|numeric|min:0.001',
+            'nasabah_id'       => 'required|exists:nasabah,id',
+            'tanggal'          => 'required|date',
+            'kategori_id'      => 'required|array|min:1',
+            'kategori_id.*'    => 'exists:kategori_sampah,id',
+            'berat_kg.*'       => 'required|numeric|min:0.001',
+            'penarikan_jenis'  => 'nullable|in:segera,terjadwal,tidak',
+            'tanggal_penarikan'=> 'required_if:penarikan_jenis,terjadwal|nullable|date|after_or_equal:today',
+        ], [
+            'tanggal_penarikan.required_if'     => 'Tanggal pencairan wajib diisi untuk penarikan terjadwal.',
+            'tanggal_penarikan.after_or_equal'  => 'Tanggal pencairan tidak boleh sebelum hari ini.',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -66,12 +71,52 @@ class TransaksiController extends Controller {
             }
 
             // ✅ Update saldo nasabah secara akumulatif
-            Nasabah::find($request->nasabah_id)
-                ->increment('saldo', $totalNilai);
+            $nasabah = Nasabah::find($request->nasabah_id);
+            $nasabah->increment('saldo', $totalNilai);
+
+            // ✅ Proses penarikan dana jika diminta
+            $penarikanJenis = $request->penarikan_jenis;
+            if ($penarikanJenis && $penarikanJenis !== 'tidak') {
+                $tanggalDiminta = $penarikanJenis === 'segera'
+                    ? \Carbon\Carbon::parse($request->tanggal)
+                    : \Carbon\Carbon::parse($request->tanggal_penarikan);
+
+                if ($penarikanJenis === 'segera') {
+                    // Cair langsung – potong saldo, langsung disetujui
+                    $nasabah->decrement('saldo', $totalNilai);
+                    \App\Models\PenarikanDana::create([
+                        'nasabah_id'        => $nasabah->id,
+                        'jumlah'            => $totalNilai,
+                        'jenis'             => 'segera',
+                        'tanggal_diminta'   => $tanggalDiminta,
+                        'tanggal_pencairan' => $tanggalDiminta,
+                        'status'            => 'disetujui',
+                        'diproses_oleh'     => auth()->id(),
+                        'transaksi_id'      => $transaksi->id,
+                    ]);
+                } else {
+                    // Terjadwal – tunggu konfirmasi admin pada hari H
+                    \App\Models\PenarikanDana::create([
+                        'nasabah_id'      => $nasabah->id,
+                        'jumlah'          => $totalNilai,
+                        'jenis'           => 'terjadwal',
+                        'tanggal_diminta' => $tanggalDiminta,
+                        'status'          => 'menunggu',
+                        'transaksi_id'    => $transaksi->id,
+                    ]);
+                }
+            }
         });
 
+        $pesanTambahan = '';
+        if ($request->penarikan_jenis === 'segera') {
+            $pesanTambahan = ' Dana langsung dicairkan ke nasabah.';
+        } elseif ($request->penarikan_jenis === 'terjadwal') {
+            $pesanTambahan = ' Penarikan dijadwalkan pada ' . \Carbon\Carbon::parse($request->tanggal_penarikan)->format('d M Y') . '.';
+        }
+
         return redirect()->route('admin.transaksi.index')
-            ->with('success', 'Transaksi berhasil dicatat dan saldo diperbarui!');
+            ->with('success', 'Transaksi berhasil dicatat dan saldo diperbarui!' . $pesanTambahan);
     }
 
     public function show(Transaksi $transaksi) {
