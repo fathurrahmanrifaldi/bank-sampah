@@ -130,7 +130,7 @@ body {
     </div>
     <div class="step-item">
       <span class="step-num">2</span>
-      <span>Cari email dari <strong>Bank Sampah RW 042</strong></span>
+      <span>Cari email dari <strong>Bank Sampah 042</strong></span>
     </div>
     <div class="step-item">
       <span class="step-num">3</span>

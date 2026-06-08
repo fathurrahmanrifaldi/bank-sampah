@@ -23,23 +23,6 @@ class LoginController extends Controller
         $this->middleware('throttle:5,1')->only('login');
     }
 
-    /**
-     * Callback setelah login berhasil — cek apakah email sudah diverifikasi.
-     */
-    protected function authenticated(Request $request, $user)
-    {
-        // Jika email belum diverifikasi, logout dan arahkan ke halaman verifikasi
-        if (!$user->hasVerifiedEmail()) {
-            auth()->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            return redirect()->route('login')
-                ->with('error', 'Email Anda belum diverifikasi. Silakan cek inbox email Anda dan klik link verifikasi. Atau <a href="' . route('verification.resend') . '" onclick="event.preventDefault(); document.getElementById(\'resend-form\').submit();">kirim ulang email verifikasi</a>.');
-        }
-
-        // Redirect ke dashboard berdasarkan role
-        return redirect()->intended($this->redirectPath());
-    }
 
     /**
      * Override pesan terlalu banyak percobaan login (Bahasa Indonesia).

@@ -37,12 +37,15 @@ body { background: #f1f5f9; }
   border-bottom: 1px solid #1a1d2e;
   background: linear-gradient(135deg, #1a1d2e 0%, #141628 100%);
 }
-.brand-icon {
-  width: 42px; height: 42px; border-radius: 12px;
-  background: linear-gradient(135deg, var(--indigo) 0%, #7c3aed 100%);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; color: #fff; margin-bottom: 10px;
-  box-shadow: 0 4px 12px rgba(79,70,229,.4);
+.sidebar-icon {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    background: none;
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.25);
+    flex-shrink: 0;
 }
 .sidebar-brand h6 {
   color: #fff; font-size: 13px; font-weight: 700;
@@ -189,9 +192,7 @@ body { background: #f1f5f9; }
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="brand-icon">
-      <i class="bi bi-shield-fill-check"></i>
-    </div>
+    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="sidebar-icon">
     <h6>Bank Sampah<br>RW 042</h6>
     <small>Kelurahan Bahagia, Bekasi</small>
     <div><span class="role-badge"><i class="bi bi-star-fill me-1" style="font-size:8px"></i>Super Admin</span></div>

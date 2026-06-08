@@ -3,13 +3,11 @@
 @section('page-title','Catat Transaksi Setoran Sampah')
 
 @section('content')
-<!-- Select2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<!-- Tom Select CSS -->
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <style>
-  .select2-container .select2-selection--single { font-size: 13px; height: 38px; display: flex; align-items: center; }
-  .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered { padding-top: 0; padding-bottom: 0; }
-  .select2-container--bootstrap-5 .select2-dropdown { font-size: 13px; }
+  .ts-wrapper.single .ts-control { padding: 6px 10px; font-size: 13px; min-height: 36px; }
+  .ts-dropdown { font-size: 13px; }
 </style>
 
 <div class="row justify-content-center">
@@ -89,7 +87,7 @@
                   <!-- Baris pertama -->
                   <tr class="baris-detail">
                     <td>
-                      <select name="kategori_id[]" class="form-select form-select-sm sel-kategori" required>
+                      <select name="kategori_id[]" id="sel_first" class="sel-kategori" required>
                         <option value="">-- Pilih Kategori --</option>
                         @foreach($kategori as $k)
                           <option value="{{ $k->id }}" data-harga="{{ $k->harga_per_kg }}">
@@ -224,129 +222,174 @@
 @endsection
 
 @push('scripts')
-<!-- jQuery & Select2 JS -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Tom Select JS -->
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
 <script>
-$(document).ready(function() {
-  $('#selectNasabah').select2({
-    theme: 'bootstrap-5',
-    width: '100%',
-    placeholder: '-- Pilih Nasabah --'
-  });
-  $('.sel-kategori').select2({
-    theme: 'bootstrap-5',
-    width: '100%',
-    placeholder: '-- Pilih Kategori --'
-  });
+// ── Inisialisasi Tom Select – Nasabah ────────────────────
+new TomSelect('#selectNasabah', {
+  placeholder: '-- Pilih Nasabah --',
+  allowEmptyOption: true,
+  create: false,
+  onChange: function(value) {
+    const opt = document.querySelector('#selectNasabah option[value="' + value + '"]');
+    const saldo = opt ? opt.dataset.saldo : null;
+    if (saldo) {
+      document.getElementById('textSaldo').textContent = 'Rp ' + saldo;
+      document.getElementById('infoSaldo').style.display = 'block';
+    } else {
+      document.getElementById('infoSaldo').style.display = 'none';
+    }
+  }
 });
 
-// ── Template baris baru ──────────────────────────────────
-const kategoriOptions = `@foreach($kategori as $k)
-  <option value="{{ $k->id }}" data-harga="{{ $k->harga_per_kg }}">
-    {{ $k->nama_kategori }} (Rp {{ number_format($k->harga_per_kg,0,',','.') }}/kg)
-  </option>
-@endforeach`;
+// ── Fungsi init Tom Select untuk select kategori ─────────
+function initTomSelectKategori(el) {
+  return new TomSelect(el, {
+    placeholder: '-- Pilih Kategori --',
+    allowEmptyOption: true,
+    create: false,
+    onChange: function() {
+      hitungNilai();
+    }
+  });
+}
 
+// Init baris pertama
+initTomSelectKategori('#sel_first');
+
+// ── Template data opsi kategori (dari server Blade) ───────
+const kategoriData = [
+  @foreach($kategori as $k)
+  { value: "{{ $k->id }}", text: "{{ $k->nama_kategori }} (Rp {{ number_format($k->harga_per_kg,0,',','.') }}/kg)", harga: {{ $k->harga_per_kg }} },
+  @endforeach
+];
+
+// ── Fungsi buat baris baru ────────────────────────────────
 function buatBaris() {
   const tr = document.createElement('tr');
   tr.className = 'baris-detail';
-  tr.innerHTML = `
-    <td>
-      <select name="kategori_id[]" class="form-select form-select-sm sel-kategori" required>
-        <option value="">-- Pilih Kategori --</option>
-        ${kategoriOptions}
-      </select>
-    </td>
-    <td>
-      <input type="number" name="berat_kg[]" class="form-control form-control-sm inp-berat"
-             placeholder="0.000" min="0.001" step="0.001" required>
-    </td>
-    <td><span class="estimasi-nilai" style="font-size:13px;font-weight:600;color:#16a34a">Rp 0</span></td>
-    <td>
-      <button type="button" class="btn btn-sm btn-hapus"
-              style="background:#fee2e2;color:#dc2626;border-radius:7px">
-        <i class="bi bi-trash"></i>
-      </button>
-    </td>`;
-  return tr;
+  const randId = 'sel_' + Math.random().toString(36).substr(2, 9);
+
+  // Buat elemen select secara manual (bukan innerHTML agar bersih)
+  const td1 = document.createElement('td');
+  const select = document.createElement('select');
+  select.name = 'kategori_id[]';
+  select.id = randId;
+  select.required = true;
+
+  // Opsi kosong
+  const emptyOpt = document.createElement('option');
+  emptyOpt.value = '';
+  emptyOpt.textContent = '-- Pilih Kategori --';
+  select.appendChild(emptyOpt);
+
+  // Semua opsi kategori
+  kategoriData.forEach(k => {
+    const opt = document.createElement('option');
+    opt.value = k.value;
+    opt.dataset.harga = k.harga;
+    opt.textContent = k.text;
+    select.appendChild(opt);
+  });
+  td1.appendChild(select);
+
+  const td2 = document.createElement('td');
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.name = 'berat_kg[]';
+  input.className = 'form-control form-control-sm inp-berat';
+  input.placeholder = '0.000';
+  input.min = '0.001';
+  input.step = '0.001';
+  input.required = true;
+  input.addEventListener('input', hitungNilai);
+  input.addEventListener('change', hitungNilai);
+  td2.appendChild(input);
+
+  const td3 = document.createElement('td');
+  const span = document.createElement('span');
+  span.className = 'estimasi-nilai';
+  span.style.cssText = 'font-size:13px;font-weight:600;color:#16a34a';
+  span.textContent = 'Rp 0';
+  td3.appendChild(span);
+
+  const td4 = document.createElement('td');
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn btn-sm btn-hapus';
+  btn.style.cssText = 'background:#fee2e2;color:#dc2626;border-radius:7px';
+  btn.innerHTML = '<i class="bi bi-trash"></i>';
+  td4.appendChild(btn);
+
+  tr.appendChild(td1);
+  tr.appendChild(td2);
+  tr.appendChild(td3);
+  tr.appendChild(td4);
+
+  return { tr, select };
 }
 
-// ── Hitung nilai per baris & total ──────────────────────
+// ── Hitung estimasi nilai per baris & total ───────────────
 function hitungNilai() {
   let total = 0;
   document.querySelectorAll('.baris-detail').forEach(row => {
-    const sel   = row.querySelector('.sel-kategori');
-    const inp   = row.querySelector('.inp-berat');
-    const span  = row.querySelector('.estimasi-nilai');
-    const harga = parseFloat(sel.selectedOptions[0]?.dataset?.harga || 0);
+    const sel  = row.querySelector('[name="kategori_id[]"]');
+    const inp  = row.querySelector('.inp-berat');
+    const span = row.querySelector('.estimasi-nilai');
+    if (!sel || !inp || !span) return;
+
+    const selectedOpt = sel.options[sel.selectedIndex];
+    const harga = selectedOpt ? parseFloat(selectedOpt.dataset.harga || 0) : 0;
     const berat = parseFloat(inp.value || 0);
     const nilai = harga * berat;
     total += nilai;
     span.textContent = 'Rp ' + nilai.toLocaleString('id-ID');
   });
-  document.getElementById('totalNilai').textContent =
-    'Rp ' + total.toLocaleString('id-ID');
+  document.getElementById('totalNilai').textContent = 'Rp ' + total.toLocaleString('id-ID');
 }
 
-// ── Tambah baris ────────────────────────────────────────
+// ── Tambah baris baru ─────────────────────────────────────
 document.getElementById('btnTambahBaris').addEventListener('click', () => {
   const tbody = document.getElementById('tbodyDetail');
-  const newRow = buatBaris();
-  tbody.appendChild(newRow);
-  
-  // Init Select2 on the new row
-  $(newRow).find('.sel-kategori').select2({
-    theme: 'bootstrap-5',
-    width: '100%',
-    placeholder: '-- Pilih Kategori --'
-  });
+  const { tr, select } = buatBaris();
+  tbody.appendChild(tr);
 
-  // Tampilkan semua tombol hapus jika baris > 1
-  const hapusBtns = document.querySelectorAll('.btn-hapus');
-  hapusBtns.forEach(b => b.style.display = 'block');
-  bindEvents();
+  // Init Tom Select SETELAH elemen masuk ke DOM
+  initTomSelectKategori(select);
+
+  // Tampilkan semua tombol hapus
+  document.querySelectorAll('.btn-hapus').forEach(b => b.style.display = 'block');
+
+  // Bind tombol hapus
+  bindHapus();
 });
 
-// ── Hapus baris ─────────────────────────────────────────
-function bindEvents() {
+// ── Hapus baris ───────────────────────────────────────────
+function bindHapus() {
   document.querySelectorAll('.btn-hapus').forEach(btn => {
     btn.onclick = function() {
-      // Destroy Select2 before removing to prevent memory leaks
-      let sel = $(this).closest('tr').find('.sel-kategori');
-      if (sel.data('select2')) {
-        sel.select2('destroy');
+      const tr = this.closest('tr');
+      const sel = tr.querySelector('[name="kategori_id[]"]');
+      if (sel && sel.tomselect) {
+        sel.tomselect.destroy();
       }
-      this.closest('tr').remove();
-      const hapusBtns = document.querySelectorAll('.btn-hapus');
-      if (hapusBtns.length === 1) hapusBtns[0].style.display = 'none';
+      tr.remove();
+      const btns = document.querySelectorAll('.btn-hapus');
+      if (btns.length === 1) btns[0].style.display = 'none';
       hitungNilai();
     };
   });
-  
-  // Gunakan jQuery untuk event change pada Select2
-  $('.sel-kategori').off('change').on('change', hitungNilai);
-  document.querySelectorAll('.inp-berat').forEach(el => {
-    el.oninput = hitungNilai;
-    el.onchange = hitungNilai;
-  });
 }
-bindEvents();
+bindHapus();
 
-// ── Info saldo nasabah ───────────────────────────────────
-$('#selectNasabah').on('change', function() {
-  const opt = this.options[this.selectedIndex];
-  const saldo = opt.dataset.saldo;
-  if (saldo) {
-    document.getElementById('textSaldo').textContent = 'Rp ' + saldo;
-    document.getElementById('infoSaldo').style.display = 'block';
-  } else {
-    document.getElementById('infoSaldo').style.display = 'none';
-  }
+// Bind input berat pada baris pertama
+document.querySelectorAll('.inp-berat').forEach(el => {
+  el.addEventListener('input', hitungNilai);
+  el.addEventListener('change', hitungNilai);
 });
 
-// ── Penarikan dana – highlight pilihan aktif ─────────────
+// ── Penarikan dana – highlight pilihan aktif ──────────────
 const rdLabels = {
   rdTidak:     'labelTidak',
   rdSegera:    'labelSegera',
@@ -357,13 +400,8 @@ function updatePenarikanUI() {
     const rd    = document.getElementById(rdId);
     const label = document.getElementById(labelId);
     if (rd && label) {
-      if (rd.checked) {
-        label.style.borderColor = '#16a34a';
-        label.style.background  = '#f0fdf4';
-      } else {
-        label.style.borderColor = '#e2e8f0';
-        label.style.background  = '#fff';
-      }
+      label.style.borderColor = rd.checked ? '#16a34a' : '#e2e8f0';
+      label.style.background  = rd.checked ? '#f0fdf4' : '#fff';
     }
   });
   const wrap = document.getElementById('wrapTanggalPenarikan');

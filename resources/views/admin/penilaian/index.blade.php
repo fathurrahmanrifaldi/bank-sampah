@@ -56,17 +56,15 @@
     {{-- Info rumus SAW --}}
     <div class="mt-3 p-3" style="background:#fef9c3;border-radius:8px;font-size:12px;color:#854d0e">
       <i class="bi bi-info-circle me-1"></i>
-      <strong>Metode SAW</strong> &mdash; 4 kriteria benefit, dijalankan per semester (6 bulan sekali):<br>
+      <strong>Metode SAW</strong> &mdash; 3 kriteria benefit, dijalankan per semester (6 bulan sekali):<br>
       <div class="mt-1 d-flex flex-wrap gap-3">
-        <span>📊 <strong>C1 Konsistensi Setoran</strong> (30%) – rata-rata transaksi/bulan</span>
-        <span>⚖️ <strong>C2 Total Berat</strong> (25%) – total kg sampah disetor</span>
+        <span>📊 <strong>C1 Konsistensi Setoran</strong> (50%) – rata-rata transaksi/bulan</span>
+        <span>⚖️ <strong>C2 Total Berat</strong> (30%) – total kg sampah disetor</span>
         <span>🗂️ <strong>C3 Keragaman Kategori</strong> (20%) – jumlah jenis sampah unik</span>
-        <span>📈 <strong>C4 Tren Pertumbuhan</strong> (25%) – selisih rata-rata berat 3 bln akhir vs awal</span>
       </div>
       <div class="mt-1">
         Normalisasi: r<sub>ij</sub> = x<sub>ij</sub> / max(x<sub>j</sub>).
         &nbsp;|&nbsp; Skor SAW = Σ(bobot × nilai normalisasi).
-        &nbsp;|&nbsp; Predikat: 🥇 Rank 1 = <strong>Emas</strong>, 🥈 Rank 2 = <strong>Perak</strong>, 🥉 Rank 3 = <strong>Perunggu</strong>.
       </div>
     </div>
   </div>
@@ -105,12 +103,8 @@
           <th class="text-center" title="Jumlah kategori sampah unik yang disetorkan">
             C3 Keragaman<br><small class="text-muted fw-normal">(jenis)</small>
           </th>
-          <th class="text-center" title="Selisih rata-rata berat 3 bulan akhir vs 3 bulan awal">
-            C4 Tren<br><small class="text-muted fw-normal">(kg/bln)</small>
-          </th>
           {{-- Skor SAW --}}
           <th class="text-center">Skor SAW</th>
-          <th class="text-center">Predikat</th>
         </tr>
       </thead>
       <tbody>
@@ -156,17 +150,6 @@
             </div>
           </td>
 
-          {{-- C4: Tren --}}
-          <td class="text-center">
-            @php $tren = $h->tren_pertumbuhan; @endphp
-            <div style="font-weight:600;color:{{ $tren >= 0 ? '#16a34a' : '#dc2626' }}">
-              {{ $tren >= 0 ? '+' : '' }}{{ number_format($tren, 2) }} kg
-            </div>
-            <div style="font-size:11px;color:#94a3b8">
-              norm: {{ number_format($h->norm_tren * 100, 1) }}%
-            </div>
-          </td>
-
           {{-- Skor SAW --}}
           <td class="text-center">
             <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
@@ -182,23 +165,10 @@
               <span style="font-size:10px;color:#94a3b8">dari 100</span>
             </div>
           </td>
-
-          {{-- Predikat --}}
-          <td class="text-center">
-            @if($h->predikat === 'Emas')
-              <span class="badge badge-emas px-3 py-2">🥇 Emas</span>
-            @elseif($h->predikat === 'Perak')
-              <span class="badge badge-perak px-3 py-2">🥈 Perak</span>
-            @elseif($h->predikat === 'Perunggu')
-              <span class="badge badge-perunggu px-3 py-2">🥉 Perunggu</span>
-            @else
-              <span style="color:#94a3b8;font-size:12px">—</span>
-            @endif
-          </td>
         </tr>
         @empty
         <tr>
-          <td colspan="8" class="text-center text-muted py-5">
+          <td colspan="6" class="text-center text-muted py-5">
             <div style="font-size:32px;margin-bottom:8px">🏆</div>
             Belum ada penilaian untuk periode ini.<br>
             <small>Klik <strong>"Hitung Sekarang"</strong> di atas untuk menjalankan perhitungan SAW.</small>
@@ -215,9 +185,8 @@
 <div class="mt-3 p-3" style="background:#f8fafc;border-radius:8px;font-size:12px;color:#64748b;border:1px solid #e2e8f0">
   <strong>Keterangan perhitungan SAW:</strong>
   Setiap nilai kriteria dinormalisasi terhadap nilai maksimum pada periode ini (skala 0–1).
-  Skor akhir = (C1_norm × 0.30) + (C2_norm × 0.25) + (C3_norm × 0.20) + (C4_norm × 0.25),
+  Skor akhir = (C1_norm × 0.50) + (C2_norm × 0.30) + (C3_norm × 0.20),
   ditampilkan dalam skala 0–100.
-  Tren pertumbuhan negatif digeser ke ≥0 sebelum normalisasi agar tidak merugikan nasabah.
 </div>
 @endif
 
