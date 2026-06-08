@@ -54,10 +54,6 @@ Route::prefix('admin')
     Route::resource('penjualan-pengepul', Admin\PenjualanPengepulController::class)
         ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 
-    // Laporan
-    Route::get('/laporan', [Admin\LaporanController::class, 'index'])
-        ->name('laporan.index');
-
     // Penilaian Nasabah Terbaik
     Route::get('/penilaian',        [Admin\PenilaianController::class, 'index'])
         ->name('penilaian.index');
@@ -99,6 +95,14 @@ Route::prefix('super-admin')
     // Laporan
     Route::get('/laporan', [SuperAdmin\LaporanController::class, 'index'])
         ->name('laporan.index');
+
+    // Profil Super Admin
+    Route::get('/profil', [SuperAdmin\ProfileController::class, 'edit'])
+        ->name('profil.edit');
+    Route::put('/profil', [SuperAdmin\ProfileController::class, 'updateProfil'])
+        ->name('profil.update');
+    Route::put('/profil/password', [SuperAdmin\ProfileController::class, 'updatePassword'])
+        ->name('profil.password');
 });
 
 /* ═══════════════════════════════════════════

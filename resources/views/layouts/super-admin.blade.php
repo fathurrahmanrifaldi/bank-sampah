@@ -220,6 +220,12 @@ body { background: #f1f5f9; }
        class="nav-link {{ request()->routeIs('super-admin.laporan.*') ? 'active' : '' }}">
       <i class="bi bi-bar-chart-line"></i> Laporan Operasional
     </a>
+
+    <div class="nav-section">Akun</div>
+    <a href="{{ route('super-admin.profil.edit') }}"
+       class="nav-link {{ request()->routeIs('super-admin.profil.*') ? 'active' : '' }}">
+      <i class="bi bi-person-gear"></i> Profil Saya
+    </a>
   </nav>
   <div class="sidebar-footer">
     <div style="font-size:11px;color:#6b7280;margin-bottom:8px;padding:0 4px">

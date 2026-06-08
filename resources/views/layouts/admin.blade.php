@@ -204,10 +204,6 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
        class="nav-link {{ request()->routeIs('admin.penjualan-pengepul.*') ? 'active' : '' }}">
       <i class="bi bi-cash-coin"></i> Jual ke Pengepul
     </a>
-    <a href="{{ route('admin.laporan.index') }}"
-       class="nav-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
-      <i class="bi bi-bar-chart-line"></i> Laporan
-    </a>
 
     <div class="nav-section">Evaluasi</div>
     <a href="{{ route('admin.penilaian.index') }}"

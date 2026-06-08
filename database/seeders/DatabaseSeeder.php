@@ -10,22 +10,11 @@ class DatabaseSeeder extends Seeder {
 
         // 1. Buat akun Super Admin (Ketua RW)
         User::firstOrCreate(
-            ['email' => 'superadmin@banksampah.id'],
+            ['email' => 'superadmin@gmail.com'],
             [
                 'name'              => 'Ketua RW 042',
                 'password'          => Hash::make('superadmin123'),
                 'role'              => 'super_admin',
-                'email_verified_at' => now(),
-            ]
-        );
-
-        // 2. Buat akun Admin (Petugas Lapangan)
-        User::firstOrCreate(
-            ['email' => 'admin@banksampah.id'],
-            [
-                'name'              => 'Admin Bank Sampah',
-                'password'          => Hash::make('admin123'),
-                'role'              => 'admin',
                 'email_verified_at' => now(),
             ]
         );
