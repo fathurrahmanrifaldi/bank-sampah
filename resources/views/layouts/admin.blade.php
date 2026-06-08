@@ -239,7 +239,7 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
       <div class="avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
       <div>
         <div style="font-weight:600;font-size:13px">{{ auth()->user()->name }}</div>
-        <div style="font-size:11px;color:#94a3b8">Administrator</div>
+        <div style="font-size:11px;color:#94a3b8">Petugas Lapangan</div>
       </div>
     </div>
   </div>

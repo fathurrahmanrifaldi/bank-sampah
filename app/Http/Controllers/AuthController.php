@@ -13,6 +13,10 @@ class AuthController extends Controller
     {
         $user = auth()->user();
 
+        if ($user->role === 'super_admin') {
+            return redirect()->route('super-admin.dashboard');
+        }
+
         if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }

@@ -15,9 +15,19 @@ class User extends Authenticatable implements MustVerifyEmail {
         'email_verified_at' => 'datetime',
     ];
 
-    /** Cek apakah user adalah admin */
+    /** Cek apakah user adalah super admin (Ketua RW) */
+    public function isSuperAdmin(): bool {
+        return $this->role === 'super_admin';
+    }
+
+    /** Cek apakah user adalah admin (Petugas Lapangan) */
     public function isAdmin(): bool {
         return $this->role === 'admin';
+    }
+
+    /** Cek apakah akun sedang aktif */
+    public function isAktif(): bool {
+        return $this->status !== 'nonaktif';
     }
 
     /** Cek apakah email sudah terverifikasi */

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Nasabah;
 
 // Halaman utama → redirect ke login
@@ -70,6 +71,34 @@ Route::prefix('admin')
         ->name('penarikan-dana.approve');
     Route::post('/penarikan-dana/{id}/reject',  [Admin\PenarikanDanaController::class, 'reject'])
         ->name('penarikan-dana.reject');
+});
+
+/* ═══════════════════════════════════════════
+   ROUTE SUPER ADMIN (Ketua RW)
+═══════════════════════════════════════════ */
+Route::prefix('super-admin')
+    ->name('super-admin.')
+    ->middleware(['auth', 'verified', 'role:super_admin'])
+    ->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', [SuperAdmin\DashboardController::class, 'index'])
+        ->name('dashboard');
+
+    // Kelola Admin (Petugas Lapangan)
+    Route::resource('kelola-admin', SuperAdmin\KelolaAdminController::class)
+        ->except(['show'])
+        ->parameters(['kelola-admin' => 'kelolaAdmin']);
+    Route::post('/kelola-admin/{kelolaAdmin}/toggle-status', [SuperAdmin\KelolaAdminController::class, 'toggleStatus'])
+        ->name('kelola-admin.toggle-status');
+
+    // Kategori Sampah (Super Admin juga bisa CRUD)
+    Route::resource('kategori', SuperAdmin\KategoriController::class)
+        ->except(['show']);
+
+    // Laporan
+    Route::get('/laporan', [SuperAdmin\LaporanController::class, 'index'])
+        ->name('laporan.index');
 });
 
 /* ═══════════════════════════════════════════
