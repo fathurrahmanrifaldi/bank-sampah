@@ -67,6 +67,10 @@ Route::prefix('admin')
         ->name('penarikan-dana.approve');
     Route::post('/penarikan-dana/{id}/reject',  [Admin\PenarikanDanaController::class, 'reject'])
         ->name('penarikan-dana.reject');
+
+    // Laporan
+    Route::get('/laporan', [Admin\LaporanController::class, 'index'])
+        ->name('laporan.index');
 });
 
 /* ═══════════════════════════════════════════

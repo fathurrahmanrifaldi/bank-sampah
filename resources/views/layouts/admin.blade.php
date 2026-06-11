@@ -211,6 +211,10 @@ body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
        class="nav-link {{ request()->routeIs('admin.penilaian.*') ? 'active' : '' }}">
       <i class="bi bi-trophy"></i> Nasabah Terbaik
     </a>
+    <a href="{{ route('admin.laporan.index') }}"
+       class="nav-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+      <i class="bi bi-file-earmark-bar-graph"></i> Laporan
+    </a>
   </nav>
   <div class="sidebar-footer">
     <form method="POST" action="{{ route('logout') }}">
