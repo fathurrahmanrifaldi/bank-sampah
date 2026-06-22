@@ -10,7 +10,8 @@ class NasabahController extends Controller {
 
     public function index(Request $request) {
         $query = Nasabah::whereHas('user', function($q) {
-            $q->where('status', 'approved');
+            $q->where('status', 'approved')
+              ->whereNotNull('email_verified_at');
         })->with('user');
 
         if ($request->filled('q')) {

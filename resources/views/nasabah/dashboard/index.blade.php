@@ -57,8 +57,8 @@
   <div class="col-sm-4">
     <div class="stat-card text-center">
       <div style="font-size:28px">🏆</div>
-      <div style="font-size:22px;font-weight:700;color:#0f172a">{{ $predikat ?? '-' }}</div>
-      <div style="font-size:12px;color:#64748b">Predikat Bulan Ini</div>
+      <div style="font-size:22px;font-weight:700;color:#0f172a">{{ $ranking ? '#'.$ranking : '-' }}</div>
+      <div style="font-size:12px;color:#64748b">Ranking Bulan Ini</div>
     </div>
   </div>
 </div>

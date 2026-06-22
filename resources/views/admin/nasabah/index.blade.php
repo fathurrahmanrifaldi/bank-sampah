@@ -34,7 +34,7 @@
           <th>#</th>
           <th>Nama</th>
           <th>NIK</th>
-          <th>No. HP</th>
+          <!-- <th>No. HP</th> -->
           <th>Saldo</th>
           <th>Bergabung</th>
           <th>Aksi</th>
@@ -53,7 +53,7 @@
               {{ $n->nik }}
             </span>
           </td>
-          <td style="font-size:13px">{{ $n->no_hp }}</td>
+          <!-- <td style="font-size:13px">{{ $n->no_hp }}</td> -->
           <td>
             <span style="font-weight:600;color:#16a34a;font-size:13px">
               Rp {{ number_format($n->saldo, 0, ',', '.') }}
