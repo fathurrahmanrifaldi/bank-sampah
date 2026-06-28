@@ -48,7 +48,9 @@ Route::prefix('admin')
 
     // Transaksi
     Route::resource('transaksi', Admin\TransaksiController::class)
-        ->only(['index', 'create', 'store', 'show']);
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+    Route::post('transaksi/import', [Admin\TransaksiController::class, 'importExcel'])
+        ->name('transaksi.import');
 
     // Penjualan ke Pengepul
     Route::resource('penjualan-pengepul', Admin\PenjualanPengepulController::class)
