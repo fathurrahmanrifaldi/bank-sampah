@@ -54,17 +54,17 @@
     </form>
 
     {{-- Info rumus SAW --}}
-    <div class="mt-3 p-3" style="background:#fef9c3;border-radius:8px;font-size:12px;color:#854d0e">
+    <div class="mt-3 p-3" style="background:#dcfce7;border-radius:8px;font-size:12px;color:#166534">
       <i class="bi bi-info-circle me-1"></i>
       <strong>Metode SAW</strong> &mdash; 3 kriteria benefit, dijalankan per semester (6 bulan sekali):<br>
       <div class="mt-1 d-flex flex-wrap gap-3">
-        <span>📊 <strong>C1 Konsistensi Setoran</strong> (50%) – rata-rata transaksi/bulan</span>
-        <span>⚖️ <strong>C2 Total Berat</strong> (30%) – total kg sampah disetor</span>
-        <span>🗂️ <strong>C3 Keragaman Kategori</strong> (20%) – jumlah jenis sampah unik</span>
+        <span><i class="bi bi-calendar-check me-1"></i><strong>C1 Konsistensi Setoran</strong> (50%) - 15 poin per bulan aktif, maksimal 90 poin</span>
+        <span><i class="bi bi-box-seam me-1"></i><strong>C2 Total Berat</strong> (30%) - total kg sampah disetor</span>
+        <span><i class="bi bi-tags me-1"></i><strong>C3 Keragaman Kategori</strong> (20%) - jumlah jenis sampah</span>
       </div>
       <div class="mt-1">
-        Normalisasi: r<sub>ij</sub> = x<sub>ij</sub> / max(x<sub>j</sub>).
-        &nbsp;|&nbsp; Skor SAW = Σ(bobot × nilai normalisasi).
+        Normalisasi: C1 / 90, C2 / max(C2), C3 / max(C3).
+        &nbsp;|&nbsp; Skor SAW = jumlah dari bobot x nilai normalisasi.
       </div>
     </div>
   </div>
@@ -94,8 +94,8 @@
           <th style="width:60px">Rank</th>
           <th>Nasabah</th>
           {{-- Nilai mentah --}}
-          <th class="text-center" title="Konsistensi: rata-rata transaksi per bulan">
-            C1 Konsistensi<br><small class="text-muted fw-normal">(trx/bln)</small>
+          <th class="text-center" title="Konsistensi: 15 poin untuk setiap bulan yang memiliki setoran">
+            C1 Konsistensi<br><small class="text-muted fw-normal">(poin / 90)</small>
           </th>
           <th class="text-center" title="Total berat sampah selama semester">
             C2 Total Berat<br><small class="text-muted fw-normal">(kg)</small>
@@ -128,7 +128,7 @@
 
           {{-- C1: Konsistensi --}}
           <td class="text-center">
-            <div style="font-weight:600">{{ number_format($h->konsistensi, 2) }}</div>
+            <div style="font-weight:600">{{ (int) $h->konsistensi }}/90 poin</div>
             <div style="font-size:11px;color:#94a3b8">
               norm: {{ number_format($h->norm_konsistensi * 100, 1) }}%
             </div>
@@ -184,9 +184,9 @@
 @if($hasil->count() > 0)
 <div class="mt-3 p-3" style="background:#f8fafc;border-radius:8px;font-size:12px;color:#64748b;border:1px solid #e2e8f0">
   <strong>Keterangan perhitungan SAW:</strong>
-  Setiap nilai kriteria dinormalisasi terhadap nilai maksimum pada periode ini (skala 0–1).
-  Skor akhir = (C1_norm × 0.50) + (C2_norm × 0.30) + (C3_norm × 0.20),
-  ditampilkan dalam skala 0–100.
+  C1 dihitung dari bulan aktif setoran: 1 bulan = 15 poin, maksimal 90 poin dalam 6 bulan.
+  Normalisasi C1 memakai nilai ideal 90 poin, sedangkan C2 dan C3 memakai nilai maksimum pada periode ini.
+  Skor akhir = (C1_norm x 0.50) + (C2_norm x 0.30) + (C3_norm x 0.20), ditampilkan dalam skala 0-100.
 </div>
 @endif
 

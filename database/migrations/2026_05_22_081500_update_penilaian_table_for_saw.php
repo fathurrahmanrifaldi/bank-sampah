@@ -21,12 +21,12 @@ return new class extends Migration {
 
             // Kolom nilai mentah tiap kriteria SAW
             $table->decimal('konsistensi', 8, 4)->default(0)->after('semester')
-                  ->comment('C1: rata-rata transaksi per bulan (bobot 30%)');
+                  ->comment('C1: poin konsistensi, 15 poin per bulan aktif (bobot 50%)');
             $table->decimal('total_berat', 10, 3)->default(0)->change();
             $table->decimal('keragaman_kategori', 8, 4)->default(0)->after('total_berat')
                   ->comment('C3: jumlah kategori unik (bobot 20%)');
             $table->decimal('tren_pertumbuhan', 10, 4)->default(0)->after('keragaman_kategori')
-                  ->comment('C4: selisih rata-rata berat 3 bulan akhir vs awal (bobot 25%), bisa negatif');
+                  ->comment('Kolom lama, tidak dipakai pada SAW terbaru');
 
             // Kolom nilai normalisasi SAW per kriteria (untuk transparansi)
             $table->decimal('norm_konsistensi', 8, 6)->default(0)->after('tren_pertumbuhan');

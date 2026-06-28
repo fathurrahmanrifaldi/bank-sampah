@@ -12,10 +12,10 @@ class Penilaian extends Model
         'semester',
         'tahun',
         // Nilai mentah kriteria SAW
-        'konsistensi',        // C1 – bobot 30%
-        'total_berat',        // C2 – bobot 25%
-        'keragaman_kategori', // C3 – bobot 20%
-        'tren_pertumbuhan',   // C4 – bobot 25%
+        'konsistensi',        // C1 - bobot 50%
+        'total_berat',        // C2 - bobot 30%
+        'keragaman_kategori', // C3 - bobot 20%
+        'tren_pertumbuhan',   // Kolom lama, tidak dipakai pada SAW terbaru.
         // Nilai normalisasi SAW
         'norm_konsistensi',
         'norm_total_berat',
