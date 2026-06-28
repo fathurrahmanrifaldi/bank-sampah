@@ -67,6 +67,15 @@ Route::prefix('admin')
         ->name('penarikan-dana.approve');
     Route::post('/penarikan-dana/{id}/reject',  [Admin\PenarikanDanaController::class, 'reject'])
         ->name('penarikan-dana.reject');
+
+    // Laporan
+    Route::get('/laporan', [Admin\LaporanController::class, 'index'])
+        ->name('laporan.index');
+
+    // Import Data Historis
+    Route::get('/import',          [Admin\ImportController::class, 'index'])->name('import.index');
+    Route::post('/import',         [Admin\ImportController::class, 'store'])->name('import.store');
+    Route::get('/import/template', [Admin\ImportController::class, 'downloadTemplate'])->name('import.template');
 });
 
 /* ═══════════════════════════════════════════
