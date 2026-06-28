@@ -49,11 +49,12 @@ class NasabahController extends Controller {
         DB::transaction(function () use ($request) {
             // 1. Buat user account
             $user = User::create([
-                'name'     => $request->name,
-                'email'    => $request->email,
-                'password' => Hash::make($request->password),
-                'role'     => 'nasabah',
-                'status'   => 'approved', // Jika Admin yang buat, langsung approved
+                'name'              => $request->name,
+                'email'             => $request->email,
+                'password'          => Hash::make($request->password),
+                'role'              => 'nasabah',
+                'status'            => 'approved', // Jika Admin yang buat, langsung approved
+                'email_verified_at' => now(),      // Langsung terverifikasi tanpa email
             ]);
 
             // 2. Buat data nasabah yang terhubung ke user
