@@ -1,58 +1,63 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+#  BASARA (Bank Sampah RW 042) — Sistem Informasi Pengelolaan Bank Sampah
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi sistem informasi berbasis web yang dirancang untuk mendigitalkan dan mengotomatiskan seluruh alur operasional Bank Sampah di RW 042 Kelurahan Bahagia, Kecamatan Babelan, Kabupaten Bekasi. Sistem ini mentransformasi pembukuan konvensional manual menjadi sistem digital yang terintegrasi, transparan, akurat, dan aman.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+##  Ringkasan Proyek
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Pengelolaan bank sampah secara manual sering kali menghadapi risiko kehilangan arsip fisik, pencatatan transaksi yang lambat, serta minimnya transparansi saldo bagi nasabah/warga. **BASARA** hadir sebagai solusi *end-to-end* yang memfasilitasi:
+- **Pengelolaan Data Terpusat:** Manajemen data nasabah, pengelola/admin, dan inventaris kategori sampah.
+- **Transaksi Cepat & Otomatis:** Pencatatan setoran sampah multi-kategori secara dinamis dengan kalkulasi saldo dan total setoran secara *real-time*.
+- **Transparansi Keuangan:** Nasabah dapat memantau riwayat transaksi, mutasi saldo, serta mengajukan penarikan dana tabungan secara mandiri.
+- **Sistem Pendukung Keputusan (SPK):** Penentuan nasabah terbaik secara objektif dan terukur menggunakan metode *Simple Additive Weighting* (SAW).
+- **Visualisasi & Pelaporan:** Monitoring operasional dan rekapitulasi data keuangan/transaksi dalam bentuk tabel serta grafik interaktif.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+##  Fitur Utama
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+###  Super Admin
+- Dashboard analitik dan ringkasan eksekutif sistem
+- Manajemen akun pengelola/admin (tambah, edit, dan aktivasi status)
+- Monitoring transaksi, laporan operasional, dan laporan keuangan komprehensif
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+###  Admin / Petugas Operasional
+- Verifikasi dan persetujuan pendaftaran akun nasabah baru
+- Pengelolaan master data nasabah dan kategori/harga sampah
+- Input transaksi setoran sampah (*multi-row dynamic form*)
+- Pencatatan transaksi penjualan sampah ke mitra pengepul beserta pembaruan stok otomatis
+- Pemrosesan dan verifikasi pengajuan penarikan dana nasabah
+- Eksekusi kalkulasi penilaian nasabah terbaik berbasis metode SAW
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+###  Nasabah / Warga
+- Dashboard personal: informasi total tabungan saldo dan total akumulasi berat sampah
+- Pengajuan penarikan saldo tabungan secara mandiri
+- Akses transparan riwayat transaksi setoran dan penarikan dana
+- Manajemen data profil akun
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+##  Tech Stack
 
-```bash
-composer require laravel/boost --dev
+- **Backend Framework:** PHP (Laravel)
+- **Database:** MySQL
+- **Frontend / UI:** HTML5, CSS3, JavaScript, Bootstrap
+- **Authentication:** Laravel Auth & Google OAuth
+- **Data Visualization:** Chart.js
+- **Design & Modeling:** Figma, Draw.io (UML & ERD)
 
-php artisan boost:install
-```
+---
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+##  Keamanan & Integritas Data
 
-## Contributing
+- **Multi-Role Access Control (RBAC):** Pembatasan hak akses ketat berbasis peran (*Super Admin*, *Admin*, *Nasabah*) via custom middleware.
+- **Database Transactions:** Penerapan `DB::transaction()` pada modul transaksional multi-tabel untuk mencegah data korup dan menjamin konsistensi saldo (*data integrity*).
+- **Form Validation & Gatekeeper:** Validasi masukan berlapis di sisi klien dan server untuk menghindari data duplikat serta nilai anomali.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+##  Hasil Pengujian & Implementasi
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Black-Box Testing:** 45 skenario uji fungsional berhasil diselesaikan dengan tingkat kelulusan **100%**.
+- **User Acceptance Testing (UAT):** Diuji langsung bersama pengurus RW dan perwakilan warga dengan tingkat penerimaan **100%** (25 skenario diterima) dan skor kepuasan rata-rata **4.5 / 5.0 (Sangat Baik)**.
